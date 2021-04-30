@@ -1,0 +1,21 @@
+//Syntax of apg file (which specifies BNF-like).
+
+apg_file: item* EOF
+
+item: nonterminal
+
+nonterminal: IDENT ':' expression* ';'
+
+expression: expression '|' expression
+| '(' expression ')' rep?
+| expression+
+| primary rep?
+
+primary: IDENT
+| terminal
+
+terminal: quoted | range | EOF
+
+quoted: '[^']*'
+
+range: '[' (.-. | .)+ ']'
