@@ -30,9 +30,7 @@ package apg.parser;
 import gblibx.CharBuffer;
 
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Map;
-import java.util.Queue;
 import java.util.regex.Pattern;
 
 import static gblibx.Util.invariant;
@@ -209,5 +207,5 @@ public class Lexer {
 
     private char __la;
     private final CharBuffer __src;
-    private final Queue<Token> __tokens = new LinkedList<>();
+    private final Tokens __tokens = new Tokens();
 }
