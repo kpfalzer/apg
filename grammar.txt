@@ -8,14 +8,18 @@ nonterminal: IDENT ':' expression* ';'
 
 expression: expression '|' expression
 | '(' expression ')' rep?
-| expression+
+| (pred? expression)+
 | primary rep?
+
+rep: '?' | '*' | '+'
+
+pred: ('&' | '!') expression
 
 primary: IDENT
 | terminal
 
 terminal: quoted | range | EOF
 
-quoted: '[^']*'
+quoted: '\'' [^\']* '\''
 
 range: '[' (.-. | .)+ ']'
