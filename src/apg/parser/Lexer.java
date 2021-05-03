@@ -40,7 +40,7 @@ public class Lexer {
         __src = src;
     }
 
-    public int tokenize() {
+    public Tokens tokenize() {
         while (isNotEof()) {
             switch (la()) {
                 case ' ':
@@ -72,7 +72,7 @@ public class Lexer {
             }
         }
         accept(Token.EType.eEOF);
-        return __tokens.size();
+        return __tokens;
     }
 
     private static final Pattern __NONWS = Pattern.compile("\\S");

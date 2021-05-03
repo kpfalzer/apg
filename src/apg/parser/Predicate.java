@@ -32,9 +32,13 @@ import java.util.Set;
 import static gblibx.Util.toSet;
 
 // pred: ('&' | '!') expression
-public class Predicate {
+public class Predicate extends TokenConsumer {
     public static void parse(Tokens tokens) {
         //todo
+    }
+
+    private Predicate(Tokens tokens) {
+        super(tokens);
     }
 
     /*package*/ static final Set<Token.EType> _FIRST = toSet(Token.EType.eAnd, Token.EType.eNot);

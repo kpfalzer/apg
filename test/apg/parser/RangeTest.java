@@ -27,24 +27,30 @@
 
 package apg.parser;
 
-import gblibx.FileCharBuffer;
+import gblibx.CharBuffer;
 import org.junit.Test;
 
-import java.io.IOException;
+import static org.junit.Assert.*;
 
-public class LexerTest {
+public class RangeTest {
 
     @Test
-    public void tokenize() throws IOException {
+    public void parse() {
         {
-            final Lexer lexer = new Lexer(new FileCharBuffer("grammar.txt"));
-            final int n = lexer.tokenize().size();
-            boolean stop = true;
+            final Lexer lexer = new Lexer(new CharBuffer("[^abc0-9\\[\\]\\-+]"));
+            final Tokens tokens = lexer.tokenize();
+            final ASTNode ast = Range.parse(tokens);
+            System.out.println(ast.toString());
+            assertNotEquals(null, ast);
         }
-        if (false) {
-            final Lexer lexer = new Lexer(new FileCharBuffer("sv2012.peg"));
-            final int n = lexer.tokenize().size();
-            boolean stop = true;
+        {
+            try {
+                Range.parse(new Lexer(new CharBuffer("[a-")).tokenize());
+                assertFalse(true);//never here
+            } catch (ParseException ex) {
+                System.err.println(ex.toString());
+                assertTrue(true);//fail
+            }
         }
     }
 }

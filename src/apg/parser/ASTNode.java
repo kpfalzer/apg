@@ -27,5 +27,25 @@
 
 package apg.parser;
 
-public interface ASTNode {
+public class ASTNode {
+    protected ASTNode(Token start) {
+        _start = start;
+    }
+
+    protected ASTNode() {
+        this(null);
+    }
+
+    protected String getLocAndName(ASTNode node) {
+        if (1 > __OFFSET) {
+            __OFFSET = this.getClass().getPackage().getName().length()+1;
+        }
+        return String.format("%s: %s",
+                _start.loc.toString(),
+                node.getClass().getCanonicalName().substring(__OFFSET)
+        );
+    }
+
+    private static int __OFFSET = 0;
+    protected final Token _start;
 }

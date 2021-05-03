@@ -27,24 +27,31 @@
 
 package apg.parser;
 
-import gblibx.FileCharBuffer;
-import org.junit.Test;
+import static apg.parser.Util.invalidToken;
 
-import java.io.IOException;
-
-public class LexerTest {
-
-    @Test
-    public void tokenize() throws IOException {
-        {
-            final Lexer lexer = new Lexer(new FileCharBuffer("grammar.txt"));
-            final int n = lexer.tokenize().size();
-            boolean stop = true;
-        }
-        if (false) {
-            final Lexer lexer = new Lexer(new FileCharBuffer("sv2012.peg"));
-            final int n = lexer.tokenize().size();
-            boolean stop = true;
-        }
+public class TokenConsumer {
+    protected TokenConsumer(Tokens tokens) {
+        _tokens = tokens;
     }
+
+    public Token pop() {
+        return _tokens.pop();
+    }
+
+    public Token peek() {
+        return _tokens.peek();
+    }
+
+    public Token popAndPeek() {
+        pop();
+        return peek();
+    }
+
+    public Token popAndNotExpectEOF() {
+        final Token tok = pop();
+        if (tok.isEOF()) invalidToken(tok);
+        return tok;
+    }
+
+    protected final Tokens _tokens;
 }

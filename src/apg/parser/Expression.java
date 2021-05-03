@@ -33,9 +33,12 @@ package apg.parser;
  * | (pred? expression)+
  * | primary rep?
  */
-public class Expression {
+public class Expression extends TokenConsumer {
     public static void parse(Tokens tokens) {
         //todo
     }
 
+    private Expression(Tokens tokens) {
+        super(tokens);
+    }
 }

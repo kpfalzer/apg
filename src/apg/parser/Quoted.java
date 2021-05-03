@@ -33,32 +33,36 @@ import static apg.parser.Util.invalidToken;
 import static gblibx.Util.toSet;
 
 // quoted: '\'' [^\']* '\''
-public class Quoted {
+public class Quoted extends TokenConsumer {
     public static ASTNode parse(Tokens tokens) {
         return new Quoted(tokens).parse();
     }
 
     private Quoted(Tokens tokens) {
-        __tokens = tokens;
+        super(tokens);
     }
 
     private ASTNode parse() {
-        Token tok = __tokens.pop();
+        Token tok = pop();
         if (!_FIRST.contains(tok.type)) {
             invalidToken(tok);
         }
         return (__node = new Node(tok));
     }
 
-    public static class Node implements ASTNode {
+    public static class Node extends ASTNode {
         private Node(Token tok) {
-            __quoted = tok;
+            super(tok);
         }
 
-        private final Token __quoted;
+        public String toString() {
+            return String.format("%s: %s",
+                    getLocAndName(this),
+                    _start.text
+            );
+        }
     }
 
-    private final Tokens __tokens;
     private Node __node;
     /*protected*/ static final Set<Token.EType> _FIRST = toSet(Token.EType.eQuoted);
 

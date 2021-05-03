@@ -31,17 +31,17 @@ import java.util.Set;
 
 import static apg.parser.Util.invalidToken;
 
-public class ApgFile {
+public class ApgFile extends TokenConsumer {
     public static ASTNode parse(Tokens tokens) {
         return new ApgFile(tokens).parse();
     }
 
     private ApgFile(Tokens tokens) {
-        __tokens = tokens;
+        super(tokens);
     }
 
     private ASTNode parse() {
-        final Token tok = __tokens.pop();
+        final Token tok = pop();
         if (tok.type != Token.EType.eEOF) {
             if (!__FIRST.contains(tok.type)) {
                 invalidToken(tok);
@@ -55,10 +55,9 @@ public class ApgFile {
 
     }
 
-    public static class Node implements ASTNode {
+    public static class Node extends ASTNode {
     }
 
-    private final Tokens __tokens;
     private static final Set<Token.EType> __FIRST = Item._FIRST;
     private final Node __node = new Node();
 }

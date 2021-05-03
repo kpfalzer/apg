@@ -27,24 +27,16 @@
 
 package apg.parser;
 
-import gblibx.FileCharBuffer;
-import org.junit.Test;
+import gblibx.CharBuffer;
 
-import java.io.IOException;
-
-public class LexerTest {
-
-    @Test
-    public void tokenize() throws IOException {
-        {
-            final Lexer lexer = new Lexer(new FileCharBuffer("grammar.txt"));
-            final int n = lexer.tokenize().size();
-            boolean stop = true;
-        }
-        if (false) {
-            final Lexer lexer = new Lexer(new FileCharBuffer("sv2012.peg"));
-            final int n = lexer.tokenize().size();
-            boolean stop = true;
-        }
+public class ParseException extends RuntimeException {
+    public ParseException(CharBuffer.Mark loc, String msg) {
+        __message = String.format("%s: %s", loc.toString(), msg);
     }
+
+    public String toString() {
+        return String.format("Error: %s", __message);
+    }
+
+    private final String __message;
 }

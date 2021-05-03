@@ -39,7 +39,6 @@ public class Util {
     }
 
     public static void error(CharBuffer.Mark loc, String msg) {
-        System.err.printf("Error: %s: %s\n", loc.toString(), msg);
-        System.exit(1);
+        throw new ParseException(loc, msg);
     }
 }

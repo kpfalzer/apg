@@ -32,9 +32,13 @@ import gblibx.Util;
 import java.util.Set;
 
 // IDENT ':' expression* ';'
-public class NonTerminal {
+public class NonTerminal extends TokenConsumer {
     public static void parse(Tokens tokens) {
         //todo
+    }
+
+    private NonTerminal(Tokens tokens) {
+        super(tokens);
     }
 
     /*package*/ static final Set<Token.EType> _FIRST = Util.toSet(Token.EType.eIdent);

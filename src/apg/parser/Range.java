@@ -30,60 +30,82 @@ package apg.parser;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static apg.parser.Util.invalidToken;
+import static gblibx.Util.castobj;
 import static gblibx.Util.toSet;
 
 // range: '[' '^'? (.-. | .)+ ']'
-public class Range {
+public class Range extends TokenConsumer {
     public static ASTNode parse(Tokens tokens) {
         return new Range(tokens).parse();
     }
 
     private Range(Tokens tokens) {
-        __tokens = tokens;
+        super(tokens);
     }
 
     private ASTNode parse() {
-        final Token tok = __tokens.pop();
+        final Token tok = pop();
         if (!_FIRST.contains(tok.type)) {
             invalidToken(tok);
         }
-        items();
+        items(tok);
         return __node;
     }
 
-    private void items() {
-        boolean hasNotPrefix = __tokens.peek().type == Token.EType.eCaret;
-        __node = new Node(hasNotPrefix);
-        if (hasNotPrefix) __tokens.pop();
+    private void items(Token start) {
+        boolean hasNotPrefix = peek().type == Token.EType.eCaret;
+        __node = new Node(start, hasNotPrefix);
+        if (hasNotPrefix) pop();
         while (!isClose()) {
-            final Token tok = __tokens.popAndNotExpectEOF();
-            if (__tokens.peek().type == Token.EType.eMinus) {
-                __tokens.pop();// -
-                final Token tok2 = __tokens.popAndNotExpectEOF();
+            final Token tok = popAndNotExpectEOF();
+            if (peek().type == Token.EType.eMinus) {
+                pop();// -
+                final Token tok2 = popAndNotExpectEOF();
                 __node.elements.add(new Token[]{tok, tok2});
             } else {
                 __node.elements.add(tok);
             }
         }
-        __tokens.pop(); // ]
+        pop(); // ]
     }
 
     private boolean isClose() {
-        return __tokens.peek().type == Token.EType.eRightBrack;
+        return peek().type == Token.EType.eRightBrack;
     }
 
-    public static class Node implements ASTNode {
-        private Node(boolean hasNotPrefix) {
+    public static class Node extends ASTNode {
+        private Node(Token start, boolean hasNotPrefix) {
+            super(start);
             this.hasNotPrefix = hasNotPrefix;
         }
 
+        public String toString() {
+            return String.format("%s: [%c%s]",
+                    getLocAndName(this),
+                    (hasNotPrefix) ? '^' : '\0',
+                    elements.stream().map(e -> toString(e)).collect(Collectors.joining())
+            );
+        }
+
+        private String toString(Object e) {
+            String s;
+            if (e instanceof Token)
+                s = ((Token) e).text;
+            else {
+                Token[] toks = castobj(e);
+                s = Stream.of(toks).map(x -> x.text).collect(Collectors.joining("-"));
+            }
+            return s;
+        }
+
         public final boolean hasNotPrefix;
-        public List<Object> elements = new LinkedList<>();
+        public final List<Object> elements = new LinkedList<>();
     }
 
     private Node __node;
-    private final Tokens __tokens;
     /*protected*/ static final Set<Token.EType> _FIRST = toSet(Token.EType.eLeftBrack);
 }

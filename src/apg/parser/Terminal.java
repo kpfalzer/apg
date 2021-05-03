@@ -28,9 +28,12 @@
 package apg.parser;
 
 // terminal: quoted | range | EOF
-public class Terminal {
+public class Terminal extends TokenConsumer {
     public static void parse(Tokens tokens) {
         //todo
     }
 
+    private Terminal(Tokens tokens) {
+        super(tokens);
+    }
 }
