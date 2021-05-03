@@ -22,4 +22,4 @@ terminal: quoted | range | EOF
 
 quoted: '\'' [^\']* '\''
 
-range: '[' (.-. | .)+ ']'
+range: '[' '^'? (.-. | .)+ ']'

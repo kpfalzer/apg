@@ -35,7 +35,7 @@ public class Util {
     }
 
     public static void invalidToken(Token tok) {
-        error(tok.loc, String.format("invalid token: %s", tok.text));
+        error(tok.loc, String.format("invalid token: %s", (tok.isEOF()) ? "<EOF>" : tok.text));
     }
 
     public static void error(CharBuffer.Mark loc, String msg) {

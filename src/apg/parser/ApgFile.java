@@ -42,7 +42,7 @@ public class ApgFile {
 
     private ASTNode parse() {
         final Token tok = __tokens.pop();
-        if (tok.type != Token.EType.eEof) {
+        if (tok.type != Token.EType.eEOF) {
             if (!__FIRST.contains(tok.type)) {
                 invalidToken(tok);
             }

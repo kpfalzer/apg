@@ -71,7 +71,7 @@ public class Lexer {
                     }
             }
         }
-        accept(Token.EType.eEof);
+        accept(Token.EType.eEOF);
         return __tokens.size();
     }
 
@@ -199,6 +199,7 @@ public class Lexer {
         __typeByChar.put('&', Token.EType.eAnd);
         __typeByChar.put('|', Token.EType.eOr);
         __typeByChar.put('!', Token.EType.eNot);
+        __typeByChar.put('^', Token.EType.eCaret);
     }
 
     static {

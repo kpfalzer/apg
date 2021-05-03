@@ -29,5 +29,17 @@ package apg.parser;
 
 import java.util.LinkedList;
 
+import static apg.parser.Util.invalidToken;
+
 public class Tokens extends LinkedList<Token> {
+    public Token popAndPeek() {
+        super.pop();
+        return super.peek();
+    }
+
+    public Token popAndNotExpectEOF() {
+        final Token tok = super.pop();
+        if (tok.isEOF()) invalidToken(tok);
+        return tok;
+    }
 }

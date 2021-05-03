@@ -40,12 +40,17 @@ public class Token {
         ePlus,
         eQmark,
         eStar,
-        eEof,
+        eEOF,
         eAnd,
         eOr,
         eNot,
         eQuoted,
+        eCaret,
         eNonWS  //single non-whitespace char (not above)
+    }
+
+    public boolean isEOF() {
+        return type == EType.eEOF;
     }
 
     public Token(CharBuffer.Mark loc, String text, EType type) {
