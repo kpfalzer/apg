@@ -27,7 +27,12 @@
 
 package apg.parser;
 
-public class ASTNode {
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static gblibx.Util.repeat;
+
+public abstract class ASTNode {
     protected ASTNode(Token start) {
         _start = start;
     }
@@ -38,12 +43,49 @@ public class ASTNode {
 
     protected String getLocAndName(ASTNode node) {
         if (1 > __OFFSET) {
-            __OFFSET = this.getClass().getPackage().getName().length()+1;
+            __OFFSET = this.getClass().getPackage().getName().length() + 1;
         }
         return String.format("%s: %s",
                 _start.loc.toString(),
                 node.getClass().getCanonicalName().substring(__OFFSET)
         );
+    }
+
+    public abstract String toString();
+
+    /**
+     * Method for degenerate case of single token (is start).
+     *
+     * @param node subclass with single token.
+     * @return parsed token detail.
+     */
+    protected String toString(ASTNode node) {
+        return String.format("%s: %s",
+                getLocAndName(node),
+                _start.text
+        );
+    }
+
+    protected String toString(ASTNode node, ASTNode other) {
+        return String.format("%s: %s",
+                getLocAndName(node),
+                other.toString()
+        );
+    }
+
+    protected String toString(List<?> eles, int indent) {
+        final String spacing = repeat(" ", indent) + "\n";
+        return toString(eles, spacing);
+    }
+
+    protected String toString(List<?> eles, String spacing) {
+        return eles.stream()
+                .map(e -> e.toString())
+                .collect(Collectors.joining(spacing));
+    }
+
+    protected String toString(List<?> eles) {
+        return toString(eles, 1);
     }
 
     private static int __OFFSET = 0;

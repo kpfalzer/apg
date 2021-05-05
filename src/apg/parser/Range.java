@@ -65,9 +65,9 @@ public class Range extends TokenConsumer {
             if (peek().type == Token.EType.eMinus) {
                 pop();// -
                 final Token tok2 = popAndNotExpectEOF();
-                __node.elements.add(new Token[]{tok, tok2});
+                __node.items.add(new Token[]{tok, tok2});
             } else {
-                __node.elements.add(tok);
+                __node.items.add(tok);
             }
         }
         pop(); // ]
@@ -87,7 +87,7 @@ public class Range extends TokenConsumer {
             return String.format("%s: [%c%s]",
                     getLocAndName(this),
                     (hasNotPrefix) ? '^' : '\0',
-                    elements.stream().map(e -> toString(e)).collect(Collectors.joining())
+                    items.stream().map(e -> toString(e)).collect(Collectors.joining())
             );
         }
 
@@ -103,7 +103,7 @@ public class Range extends TokenConsumer {
         }
 
         public final boolean hasNotPrefix;
-        public final List<Object> elements = new LinkedList<>();
+        public final List<Object> items = new LinkedList<>();
     }
 
     private Node __node;

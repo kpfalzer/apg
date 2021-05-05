@@ -30,4 +30,7 @@ package apg.parser;
 import java.util.LinkedList;
 
 public class Tokens extends LinkedList<Token> {
+    public boolean isEOF() {
+        return super.peek().isEOF();
+    }
 }

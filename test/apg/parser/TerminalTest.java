@@ -27,12 +27,24 @@
 
 package apg.parser;
 
-import java.util.Set;
+import gblibx.CharBuffer;
+import org.junit.Test;
 
-public class Item {
-    public static ASTNode parse(Tokens tokens) {
-        return NonTerminal.parse(tokens);
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
+
+public class TerminalTest {
+
+    @Test
+    public void parse() {
+        final String text = "'quoted' [a-zA-Z0-9_] EOF";
+        final Lexer lexer = new Lexer(new CharBuffer(text));
+        final Tokens tokens = lexer.tokenize();
+        while (!tokens.isEOF()) {
+            assertTrue(Terminal._FIRST.contains(tokens.peek().type));
+            final ASTNode ast = Terminal.parse(tokens);
+            System.out.println(ast.toString());
+            assertNotEquals(null, ast);
+        }
     }
-
-    /*package*/ static final Set<Token.EType> _FIRST = NonTerminal._FIRST;
 }

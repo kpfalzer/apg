@@ -29,14 +29,38 @@ package apg.parser;
 
 import java.util.Set;
 
+import static apg.parser.Util.invalidToken;
 import static gblibx.Util.toSet;
 
 // rep: '?' | '*' | '+'
-public class Repeat {
-    public static void parse(Tokens tokens) {
-        //todo
+public class Repeat extends TokenConsumer {
+    public static ASTNode parse(Tokens tokens) {
+        return new Repeat(tokens).parse();
     }
 
+    private Repeat(Tokens tokens) {
+        super(tokens);
+    }
+
+    private ASTNode parse() {
+        Token tok = pop();
+        if (!_FIRST.contains(tok.type)) {
+            invalidToken(tok);
+        }
+        return (__node = new Node(tok));
+    }
+
+    public static class Node extends ASTNode {
+        private Node(Token tok) {
+            super(tok);
+        }
+
+        public String toString() {
+            return toString(this);
+        }
+    }
+
+    private Node __node;
     /*package*/ static final Set<Token.EType> _FIRST = toSet(
             Token.EType.eQmark, Token.EType.eStar, Token.EType.ePlus);
 

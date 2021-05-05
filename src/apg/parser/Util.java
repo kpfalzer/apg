@@ -30,15 +30,19 @@ package apg.parser;
 import gblibx.CharBuffer;
 
 public class Util {
-    public static boolean identIsEOF(Token tok) {
-        return (Token.EType.eIdent == tok.type) && tok.text.equals("EOF");
+    public static String getText(Token tok) {
+        return (tok.isEOF()) ? "<EOF>" : tok.text;
     }
 
     public static void invalidToken(Token tok) {
-        error(tok.loc, String.format("invalid token: %s", (tok.isEOF()) ? "<EOF>" : tok.text));
+        error(tok.loc, String.format("invalid token: %s", getText(tok)));
     }
 
     public static void error(CharBuffer.Mark loc, String msg) {
         throw new ParseException(loc, msg);
+    }
+
+    public static void error(Token found, String expected) {
+        error(found.loc, String.format("expected '%s', found %s", expected, getText(found)));
     }
 }

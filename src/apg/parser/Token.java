@@ -53,6 +53,14 @@ public class Token {
         return type == EType.eEOF;
     }
 
+    public boolean isIdent() {
+        return EType.eIdent == type;
+    }
+
+    public boolean identIsEOF() {
+        return isIdent() && text.equals("EOF");
+    }
+
     public Token(CharBuffer.Mark loc, String text, EType type) {
         this.loc = loc;
         this.text = text;

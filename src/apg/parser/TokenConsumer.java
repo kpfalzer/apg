@@ -47,6 +47,10 @@ public class TokenConsumer {
         return peek();
     }
 
+    public boolean isEOF() {
+        return peek().isEOF();
+    }
+
     public Token popAndNotExpectEOF() {
         final Token tok = pop();
         if (tok.isEOF()) invalidToken(tok);

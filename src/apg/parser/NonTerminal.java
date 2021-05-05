@@ -29,18 +29,65 @@ package apg.parser;
 
 import gblibx.Util;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
+
+import static apg.parser.Util.error;
+import static apg.parser.Util.invalidToken;
 
 // IDENT ':' expression* ';'
 public class NonTerminal extends TokenConsumer {
-    public static void parse(Tokens tokens) {
-        //todo
+    public static ASTNode parse(Tokens tokens) {
+        return new NonTerminal(tokens).parse();
     }
 
     private NonTerminal(Tokens tokens) {
         super(tokens);
     }
 
+    private ASTNode parse() {
+        Token tok = pop();
+        if (!_FIRST.contains(tok.type)) {
+            invalidToken(tok);
+        }
+        __node = new Node(tok);
+        if ((tok = pop()).type != Token.EType.eColon) {
+            error(tok, ":");
+        }
+        expressions();
+        if ((tok = pop()).type != Token.EType.eSemi) {
+            error(tok, ";");
+        }
+        return __node;
+    }
+
+    private void expressions() {
+        Token tok;
+        while ((tok = peek()).type != Token.EType.eSemi) {
+            if (Expression._FIRST.contains(tok.type)) {
+                invalidToken(tok);
+            }
+            __node.exprs.add(Expression.parse(_tokens));
+        }
+    }
+
+    public static class Node extends ASTNode {
+        private Node(Token ident) {
+            super(ident);
+        }
+
+        public String toString() {
+            return String.format("%s: %s",
+                    getLocAndName(this),
+                    toString(exprs, 4)
+            );
+        }
+
+        public final List<ASTNode> exprs = new LinkedList<>();
+    }
+
+    private Node __node;
     /*package*/ static final Set<Token.EType> _FIRST = Util.toSet(Token.EType.eIdent);
 
 }

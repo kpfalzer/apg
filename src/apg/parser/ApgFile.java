@@ -27,6 +27,8 @@
 
 package apg.parser;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
 import static apg.parser.Util.invalidToken;
@@ -41,21 +43,22 @@ public class ApgFile extends TokenConsumer {
     }
 
     private ASTNode parse() {
+        while (__FIRST.contains(peek().type)) {
+            __node.items.add(Item.parse(_tokens));
+        }
         final Token tok = pop();
         if (tok.type != Token.EType.eEOF) {
-            if (!__FIRST.contains(tok.type)) {
-                invalidToken(tok);
-            }
-            items();
+            invalidToken(tok);
         }
         return __node;
     }
 
-    private void items() {
-
-    }
-
     public static class Node extends ASTNode {
+        public String toString() {
+            return toString(items, "\n");
+        }
+
+        public final List<ASTNode> items = new LinkedList<>();
     }
 
     private static final Set<Token.EType> __FIRST = Item._FIRST;

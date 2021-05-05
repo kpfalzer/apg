@@ -29,16 +29,39 @@ package apg.parser;
 
 import java.util.Set;
 
+import static apg.parser.Util.invalidToken;
 import static gblibx.Util.toSet;
 
 // pred: ('&' | '!') expression
 public class Predicate extends TokenConsumer {
-    public static void parse(Tokens tokens) {
-        //todo
+    public static ASTNode parse(Tokens tokens) {
+        return new Predicate(tokens).parse();
     }
 
     private Predicate(Tokens tokens) {
         super(tokens);
+    }
+
+    private ASTNode parse() {
+        Token op = pop();
+        if (!Expression._FIRST.contains(peek().type)) {
+            invalidToken(peek());
+        }
+        return new Node(op, Expression.parse(_tokens));
+    }
+
+    public static class Node extends ASTNode {
+        private Node(Token start, ASTNode expr) {
+            super(start);
+            expression = expr;
+        }
+
+        @Override
+        public String toString() {
+            return toString(this, expression);
+        }
+
+        public final ASTNode expression;
     }
 
     /*package*/ static final Set<Token.EType> _FIRST = toSet(Token.EType.eAnd, Token.EType.eNot);

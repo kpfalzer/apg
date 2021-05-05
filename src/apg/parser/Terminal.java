@@ -27,13 +27,59 @@
 
 package apg.parser;
 
+import java.util.Set;
+
+import static apg.parser.Util.invalidToken;
+import static gblibx.Util.isNonNull;
+import static gblibx.Util.toSet;
+
 // terminal: quoted | range | EOF
 public class Terminal extends TokenConsumer {
-    public static void parse(Tokens tokens) {
-        //todo
+    public static ASTNode parse(Tokens tokens) {
+        return new Terminal(tokens).parse();
     }
 
     private Terminal(Tokens tokens) {
         super(tokens);
     }
+
+    private ASTNode parse() {
+        final Token tok = peek();
+        if (Quoted._FIRST.contains(tok.type)) {
+            __node = new Node(tok, Quoted.parse(_tokens));
+        } else if (Range._FIRST.contains(tok.type)) {
+            __node = new Node(tok, Range.parse(_tokens));
+        } else if (tok.identIsEOF()) {
+            __node = new Node(pop());
+        } else {
+            invalidToken(tok);
+        }
+        return __node;
+    }
+
+    public static class Node extends ASTNode {
+        private Node(Token start, ASTNode ele) {
+            super(start);
+            item = ele;
+        }
+
+        private Node(Token start) {
+            this(start, null);
+        }
+
+        public String toString() {
+            return (isNonNull(item))
+                    ? toString(this, item)
+                    : toString(this);
+        }
+
+        public final ASTNode item;
+    }
+
+    private Node __node;
+    /*package*/ static final Set<Token.EType> _FIRST = toSet(
+            Quoted._FIRST,
+            Range._FIRST,
+            Token.EType.eIdent /*EOF*/
+    );
 }

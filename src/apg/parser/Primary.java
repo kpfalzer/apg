@@ -27,13 +27,56 @@
 
 package apg.parser;
 
+import java.util.Set;
+
+import static apg.parser.Util.invalidToken;
+import static gblibx.Util.isNonNull;
+import static gblibx.Util.toSet;
+
 /**
  * primary: IDENT
  * | terminal
  */
-public class Primary {
-    public static void parse(Tokens tokens) {
-        //todo
+public class Primary extends TokenConsumer {
+    public static ASTNode parse(Tokens tokens) {
+        return new Primary(tokens).parse();
     }
 
+    private Primary(Tokens tokens) {
+        super(tokens);
+    }
+
+    private ASTNode parse() {
+        Token tok = peek();
+        if (tok.isIdent() && !tok.identIsEOF()) {
+            __node = new Node(pop());
+        } else if (Terminal._FIRST.contains(tok.type)) {
+            __node = new Node(tok, Terminal.parse(_tokens));
+        } else {
+            invalidToken(tok);
+        }
+        return __node;
+    }
+
+    public static class Node extends ASTNode {
+        private Node(Token start, ASTNode item) {
+            super(start);
+            this.item = item;
+        }
+
+        private Node(Token start) {
+            this(start, null);
+        }
+
+        public String toString() {
+            return (isNonNull(item))
+                    ? toString(this, item)
+                    : toString(this);
+        }
+
+        public final ASTNode item;
+    }
+
+    private Node __node;
+    /*package*/ static final Set<Token.EType> _FIRST = toSet(Token.EType.eIdent, Terminal._FIRST);
 }

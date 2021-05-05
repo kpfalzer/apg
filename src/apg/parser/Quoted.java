@@ -56,10 +56,7 @@ public class Quoted extends TokenConsumer {
         }
 
         public String toString() {
-            return String.format("%s: %s",
-                    getLocAndName(this),
-                    _start.text
-            );
+            return toString(this);
         }
     }
 
