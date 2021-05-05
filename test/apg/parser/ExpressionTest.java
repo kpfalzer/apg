@@ -36,9 +36,11 @@ public class ExpressionTest {
 
     @Test
     public void parse() {
-        final String t1 = "foo* | bar | (&e a b c | d e f)";
-        ASTNode ast = Expression.parse(new Lexer(new CharBuffer(t1)).tokenize());
-        assertNotNull(ast);
+        final String t1 = "foo* yoyo | bar | (&e a b c | d e f)";
+        Tokens tokens = new Lexer(new CharBuffer(t1)).tokenize();
+        ASTNode ast = Expression.parse(tokens);
         System.out.println(ast.toString());
+        assertNotNull(ast);
+        assertTrue(tokens.isEmpty());
     }
 }
