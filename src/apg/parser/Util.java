@@ -42,7 +42,7 @@ public class Util {
         throw new ParseException(loc, msg);
     }
 
-    public static void error(Token found, String expected) {
+    public static void invalidToken(Token found, String expected) {
         error(found.loc, String.format("expected '%s', found %s", expected, getText(found)));
     }
 }

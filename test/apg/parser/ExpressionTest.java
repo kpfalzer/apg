@@ -28,7 +28,10 @@
 package apg.parser;
 
 import gblibx.CharBuffer;
+import gblibx.FileCharBuffer;
 import org.junit.Test;
+
+import java.io.IOException;
 
 import static org.junit.Assert.*;
 
@@ -36,11 +39,39 @@ public class ExpressionTest {
 
     @Test
     public void parse() {
-        final String t1 = "foo* yoyo | bar | (&e a b c | d e f)";
-        Tokens tokens = new Lexer(new CharBuffer(t1)).tokenize();
-        ASTNode ast = Expression.parse(tokens);
-        System.out.println(ast.toString());
-        assertNotNull(ast);
-        assertTrue(tokens.isEmpty());
+        if (true) {
+            final String t1 = "(  ( attribute_instance )*  checker_or_generate_item )*";
+            //final String t1 = "foo* yoyo | bar | (&(e) a b c | d e f) | (g|h) | i j k";
+            //final String t1 = "foo* yoyo | bar | (&(e) a)";
+            Tokens tokens = new Lexer(new CharBuffer(t1)).tokenize();
+            ASTNode ast = Expression.parse(tokens);
+            System.out.println(ast.toString());
+            assertNotNull(ast);
+            assertTrue(tokens.isEOF());
+        }
+        if (true) {
+            Tokens tokens = null;
+            try {
+                tokens = new Lexer(new FileCharBuffer("grammar.txt")).tokenize();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            ASTNode ast = ApgFile.parse(tokens);
+            System.out.println("\n\n"+ast.toString());
+            assertNotNull(ast);
+            assertTrue(tokens.isEmpty());
+        }
+        if (false) {
+            Tokens tokens = null;
+            try {
+                tokens = new Lexer(new FileCharBuffer("sv2012.peg")).tokenize();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            ASTNode ast = ApgFile.parse(tokens);
+            //System.out.println("\n\n"+ast.toString());
+            assertNotNull(ast);
+            assertTrue(tokens.isEmpty());
+        }
     }
 }

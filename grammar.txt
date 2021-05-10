@@ -1,25 +1,37 @@
 //Syntax of apg file (which specifies BNF-like).
 
-apg_file: item* EOF
+apg_file: item* EOF ;
 
-item: nonterminal
+item: nonterminal ;
 
-nonterminal: IDENT ':' expression* ';'
+nonterminal: IDENT ':' expression* ';' ;
 
+/* Refresh remove left recursion:
+ *
+ *  E: '(' E ')' EE*
+ *   | pred E rep? EE*
+ *   | primary EE*
+ *
+ *  EE: '|' E
+ *    | E rep?
+ */
 expression: expression '|' expression
-| '(' expression ')' rep?
-| (pred? expression)+
-| primary rep?
+| expression rep? expression?
+| '(' expression ')'
+| pred expression rep? expression?
+| primary
+;
 
-rep: '?' | '*' | '+'
+rep: '?' | '*' | '+' ;
 
-pred: ('&' | '!') expression
+pred: ('&' | '!') '(' expression ')' ;
 
 primary: IDENT
 | terminal
+;
 
-terminal: quoted | range | EOF
+terminal: quoted | range | EOF ;
 
-quoted: '\'' [^\']* '\''
+quoted: '\'' [^\']* '\'' ;
 
-range: '[' '^'? (.-. | .)+ ']'
+//range: '[' '^'? (.-. | .)+ ']' ;

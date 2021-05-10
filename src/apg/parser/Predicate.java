@@ -32,7 +32,7 @@ import java.util.Set;
 import static apg.parser.Util.invalidToken;
 import static gblibx.Util.toSet;
 
-// pred: ('&' | '!') expression
+// pred: ('&' | '!') '(' expression ')'
 public class Predicate extends TokenConsumer {
     public static ASTNode parse(Tokens tokens) {
         return new Predicate(tokens).parse();
@@ -43,11 +43,19 @@ public class Predicate extends TokenConsumer {
     }
 
     private ASTNode parse() {
-        Token op = pop();
-        if (!Expression._FIRST.contains(peek().type)) {
+        final Token op = pop();
+        Token tok = peek();
+        if (Token.EType.eLeftParen != tok.type) {
+            invalidToken(tok, "(");
+        }
+        if (!Expression._FIRST.contains(popAndPeek().type)) {
             invalidToken(peek());
         }
-        return new Node(op, Expression.parse(_tokens));
+        final Node node = new Node(op, Expression.parse(_tokens));
+        if (Token.EType.eRightParen != (tok = pop()).type) {
+            invalidToken(tok, "(");
+        }
+        return node;
     }
 
     public static class Node extends ASTNode {

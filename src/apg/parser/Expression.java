@@ -31,16 +31,26 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import static apg.parser.Util.error;
 import static apg.parser.Util.invalidToken;
 import static gblibx.Util.isNonNull;
 import static gblibx.Util.toSet;
 
 /**
- * expression: expression '|' expression    //V1
- * | '(' expression ')' rep?                //V2
- * | (pred? expression)+                    //V3
- * | primary rep?                           //V4
+ * expression: expression '|' expression
+ * | '(' expression ')' rep?
+ * | (pred? expression)+
+ * | primary rep?
+ * <p>
+ * refactor to remove left recursion.
+ * Instead of using right recursion, we do tail X*
+ */
+/* Refresh remove left recursion:
+ *
+ *  E: '(' E ')' rep? EE*   //E1
+ *   | pred E rep? EE*      //E2
+ *   | primary rep? EE*     //E3
+ *
+ *  EE: '|'? E   //EE1
  */
 public class Expression extends TokenConsumer {
     public static ASTNode parse(Tokens tokens) {
@@ -57,42 +67,29 @@ public class Expression extends TokenConsumer {
 
     private ASTNode parse() {
         Token tok = peek();
+        if (!_FIRST.contains(tok.type)) {
+            invalidToken(tok);
+        }
         __node = new Node(tok);
-        assert _FIRST.contains(tok.type);   //check is always done before before calling parse
-        if (Token.EType.eLeftParen == tok.type) {
-            add(v2(pop()));
-        } else if (__V3_FIRST.contains(tok.type)) {
-            add(v3(tok));
-        } else if (Primary._FIRST.contains(tok.type)) {
-            add(v4(tok));
-        }
-        tok = peek();
-        if (Token.EType.eOr == tok.type) {
-            tok = popAndPeek();
-            if (!_FIRST.contains(tok.type)) {
-                invalidToken(tok);
-            }
-            ASTNode expr2 = Expression.parse(_tokens);
-            add(expr2);
-        }
+        //todo
         return __node;
     }
 
-    private V2 v2(Token lparen) {
-        return new V2(lparen).parse();
+    private E1 e1(Token lparen) {
+        return new E1(lparen).parse();
     }
 
-    private V3 v3(Token la0) {
-        return new V3(la0).parse();
+    private E2 e2(Token la0) {
+        return new E2(la0).parse();
     }
 
-    private V4 v4(Token la0) {
-        return new V4(la0).parse();
+    private E3 e3(Token la0) {
+        return new E3(la0).parse();
     }
 
-    // '(' . expression ')' rep?
-    private class V2 extends ASTNode {
-        private V2 parse() {
+    // '(' . E ')'
+    private class E1 extends ASTNode {
+        private E1 parse() {
             Token tok = peek();
             if (!Expression._FIRST.contains(tok.type)) {
                 invalidToken(tok);
@@ -100,16 +97,12 @@ public class Expression extends TokenConsumer {
             expression = Expression.parse(_tokens);
             tok = pop();
             if (Token.EType.eRightParen != tok.type) {
-                error(tok, ")");
-            }
-            tok = peek();
-            if (Repeat._FIRST.contains(tok.type)) {
-                repeat = Repeat.parse(_tokens);
+                Util.invalidToken(tok, ")");
             }
             return this;
         }
 
-        private V2(Token start) {
+        private E1(Token start) {
             super(start);
         }
 
@@ -125,31 +118,20 @@ public class Expression extends TokenConsumer {
         public ASTNode expression = null, repeat = null;
     }
 
-    private static final Set<Token.EType> __V3_FIRST = toSet(Predicate._FIRST, Expression._FIRST);
-
-    // . (pred? expression)+
-    private class V3 extends ASTNode {
-        private V3 parse() {
-            while (!isEOF()) {
-                Token tok = _start;
-                ASTNode pred = null, expr = null;
-                if (Predicate._FIRST.contains(tok.type)) {
-                    pred = Predicate.parse(_tokens);
-                    tok = peek();
-                }
-                if (!Expression._FIRST.contains(tok.type)) {
-                    invalidToken(tok);
-                }
-                expr = Expression.parse(_tokens);
-                items.add(new Item(pred, expr));
-                tok = peek();
-                if (!__V3_FIRST.contains(tok.type))
-                    break; //while
-            }
+    // . pred E rep?
+    private class E2 extends ASTNode {
+        private E2 parse() {
+            Token tok = _start;
+            ASTNode pred = Predicate.parse(_tokens);
+            ASTNode expr = Expression.parse(_tokens);
+            items.add(new Item(pred, expr));
+            tok = peek();
+            if (!_FIRST.contains(tok.type))
+                break; //while
             return this;
         }
 
-        private V3(Token start) {
+        private E2(Token start) {
             super(start);
         }
 

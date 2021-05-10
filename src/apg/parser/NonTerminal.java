@@ -33,7 +33,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import static apg.parser.Util.error;
 import static apg.parser.Util.invalidToken;
 
 // IDENT ':' expression* ';'
@@ -53,11 +52,11 @@ public class NonTerminal extends TokenConsumer {
         }
         __node = new Node(tok);
         if ((tok = pop()).type != Token.EType.eColon) {
-            error(tok, ":");
+            apg.parser.Util.invalidToken(tok, ":");
         }
         expressions();
         if ((tok = pop()).type != Token.EType.eSemi) {
-            error(tok, ";");
+            apg.parser.Util.invalidToken(tok, ";");
         }
         return __node;
     }
@@ -65,7 +64,7 @@ public class NonTerminal extends TokenConsumer {
     private void expressions() {
         Token tok;
         while ((tok = peek()).type != Token.EType.eSemi) {
-            if (Expression._FIRST.contains(tok.type)) {
+            if (!Expression._FIRST.contains(tok.type)) {
                 invalidToken(tok);
             }
             __node.exprs.add(Expression.parse(_tokens));
