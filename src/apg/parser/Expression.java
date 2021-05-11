@@ -71,7 +71,17 @@ public class Expression extends TokenConsumer {
             invalidToken(tok);
         }
         __node = new Node(tok);
-        //todo
+        if (tok.type == Token.EType.eLeftParen) {
+            __node.items.add(e1(pop()));
+        } else if (Predicate._FIRST.contains(tok.type)) {
+            __node.items.add(e2(pop()));
+        } else {
+            __node.items.add(e3(pop()));
+        }
+        while (!isEOF()) {
+            tok = peek();
+
+        }
         return __node;
     }
 
@@ -87,17 +97,18 @@ public class Expression extends TokenConsumer {
         return new E3(la0).parse();
     }
 
-    // '(' . E ')'
+    // '(' . E ')' rep?
     private class E1 extends ASTNode {
         private E1 parse() {
             Token tok = peek();
-            if (!Expression._FIRST.contains(tok.type)) {
-                invalidToken(tok);
-            }
+            assert Expression._FIRST.contains(tok.type);
             expression = Expression.parse(_tokens);
             tok = pop();
             if (Token.EType.eRightParen != tok.type) {
                 Util.invalidToken(tok, ")");
+            }
+            if (Repeat._FIRST.contains(peek().type)) {
+                repeat = Repeat.parse(_tokens);
             }
             return this;
         }
@@ -122,12 +133,11 @@ public class Expression extends TokenConsumer {
     private class E2 extends ASTNode {
         private E2 parse() {
             Token tok = _start;
-            ASTNode pred = Predicate.parse(_tokens);
-            ASTNode expr = Expression.parse(_tokens);
-            items.add(new Item(pred, expr));
-            tok = peek();
-            if (!_FIRST.contains(tok.type))
-                break; //while
+            predicate = Predicate.parse(_tokens);
+            expression = Expression.parse(_tokens);
+            if (Repeat._FIRST.contains(peek().type)) {
+                repeat = Repeat.parse(_tokens);
+            }
             return this;
         }
 
@@ -137,50 +147,24 @@ public class Expression extends TokenConsumer {
 
         @Override
         public String toString() {
-            return String.format("%s: %s",
+            return String.format("%s: %s %s %s",
                     getLocAndName(this),
-                    toString(items));
+                    predicate.toString(),
+                    expression.toString(),
+                    (isNonNull(repeat)) ? repeat.toString() : ""
+            );
         }
 
-        public class Item extends gblibx.Util.Pair<ASTNode, ASTNode> {
-            private Item(ASTNode pred, ASTNode expr) {
-                super(pred, expr);
-            }
-
-            private Item(ASTNode expr) {
-                this(null, expr);
-            }
-
-            public ASTNode predicate() {
-                return super.v1;
-            }
-
-            public ASTNode expression() {
-                return super.v2;
-            }
-
-            public boolean hasPredicate() {
-                return isNonNull(predicate());
-            }
-
-            public String toString() {
-                return String.format("%s %s",
-                        (isNonNull(predicate()) ? predicate().toString() : ""),
-                        expression().toString()
-                );
-            }
-        }
-
-        public final List<Item> items = new LinkedList<>();
+        public ASTNode predicate = null, expression = null, repeat = null;
     }
 
     // . primary rep?
-    private class V4 extends ASTNode {
-        private V4(Token start) {
+    private class E3 extends ASTNode {
+        private E3(Token start) {
             super(start);
         }
 
-        private V4 parse() {
+        private E3 parse() {
             primary = Primary.parse(_tokens);
             Token tok = peek();
             if (Repeat._FIRST.contains(tok.type)) {
@@ -209,11 +193,32 @@ public class Expression extends TokenConsumer {
         public String toString() {
             return String.format("%s: %s",
                     getLocAndName(this),
-                    toString(items, "\n  | ")
+                    toString(items, "\n  ")
             );
         }
 
-        public final List<ASTNode> items = new LinkedList<>();
+        public static class Item extends gblibx.Util.Pair<Boolean, ASTNode> {
+            public Item(boolean isAlt, ASTNode expression) {
+                super(isAlt, expression);
+            }
+
+            public boolean isAlt() {
+                return v1;
+            }
+
+            public ASTNode expression() {
+                return v2;
+            }
+
+            public String toString() {
+                return String.format("%s %s",
+                        isAlt() ? "| " : "",
+                        expression().toString()
+                );
+            }
+        }
+
+        public final List<Item> items = new LinkedList<>();
     }
 
     private Node __node;
