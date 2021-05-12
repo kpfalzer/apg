@@ -61,10 +61,6 @@ public class Expression extends TokenConsumer {
         super(tokens);
     }
 
-    private void add(ASTNode node) {
-        __node.items.add(node);
-    }
-
     private ASTNode parse() {
         Token tok = peek();
         if (!_FIRST.contains(tok.type)) {
@@ -72,15 +68,24 @@ public class Expression extends TokenConsumer {
         }
         __node = new Node(tok);
         if (tok.type == Token.EType.eLeftParen) {
-            __node.items.add(e1(pop()));
+            __node.add(e1(pop()));
         } else if (Predicate._FIRST.contains(tok.type)) {
-            __node.items.add(e2(pop()));
+            __node.add(e2(pop()));
         } else {
-            __node.items.add(e3(pop()));
+            __node.add(e3(pop()));
         }
         while (!isEOF()) {
             tok = peek();
-
+            // EE*
+            ASTNode expression = null;
+            if (Token.EType.eOr == tok.type) {
+                pop();
+                __node.add(true, parse());
+            } else if (_FIRST.contains(tok.type)) {
+                __node.add(parse());
+            } else {
+                break;//while
+            }
         }
         return __node;
     }
@@ -195,6 +200,14 @@ public class Expression extends TokenConsumer {
                     getLocAndName(this),
                     toString(items, "\n  ")
             );
+        }
+
+        public void add(boolean isAlt, ASTNode expression) {
+            items.add(new Item(isAlt, expression));
+        }
+
+        public void add(ASTNode expression) {
+            add(false, expression);
         }
 
         public static class Item extends gblibx.Util.Pair<Boolean, ASTNode> {
