@@ -70,22 +70,24 @@ public class Expression extends TokenConsumer {
         if (tok.type == Token.EType.eLeftParen) {
             __node.add(e1(pop()));
         } else if (Predicate._FIRST.contains(tok.type)) {
-            __node.add(e2(pop()));
+            __node.add(e2(peek()));
         } else {
-            __node.add(e3(pop()));
+            __node.add(e3(peek()));
         }
         while (!isEOF()) {
             tok = peek();
             // EE*
-            ASTNode expression = null;
+            boolean isAlt = false;
             if (Token.EType.eOr == tok.type) {
                 pop();
-                __node.add(true, parse());
+                isAlt = true;
             } else if (_FIRST.contains(tok.type)) {
-                __node.add(parse());
+                ;
             } else {
                 break;//while
             }
+            final ASTNode expression = Expression.parse(_tokens);
+            __node.add(isAlt, expression);
         }
         return __node;
     }
@@ -106,7 +108,8 @@ public class Expression extends TokenConsumer {
     private class E1 extends ASTNode {
         private E1 parse() {
             Token tok = peek();
-            assert Expression._FIRST.contains(tok.type);
+            if (!Expression._FIRST.contains(tok.type))
+                Util.invalidToken(tok);
             expression = Expression.parse(_tokens);
             tok = pop();
             if (Token.EType.eRightParen != tok.type) {
