@@ -27,6 +27,8 @@
 
 package apg.parser;
 
+import apg.ast.PTokens;
+
 import java.util.Set;
 
 import static apg.parser.Util.invalidToken;
@@ -34,11 +36,11 @@ import static gblibx.Util.toSet;
 
 // rep: '?' | '*' | '+'
 public class Repeat extends TokenConsumer {
-    public static ASTNode parse(Tokens tokens) {
+    public static ASTNode parse(PTokens tokens) {
         return new Repeat(tokens).parse();
     }
 
-    private Repeat(Tokens tokens) {
+    private Repeat(PTokens tokens) {
         super(tokens);
     }
 
@@ -61,7 +63,7 @@ public class Repeat extends TokenConsumer {
     }
 
     private Node __node;
-    /*package*/ static final Set<Token.EType> _FIRST = toSet(
-            Token.EType.eQmark, Token.EType.eStar, Token.EType.ePlus);
+    /*package*/ static final Set<TokenCode> _FIRST = toSet(
+            TokenCode.eQmark, TokenCode.eStar, TokenCode.ePlus);
 
 }

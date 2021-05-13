@@ -27,10 +27,7 @@
 
 package apg.parser;
 
-import java.util.LinkedList;
+import apg.ast.PTokens;
 
-public class Tokens extends LinkedList<Token> {
-    public boolean isEOF() {
-        return super.peek().isEOF();
-    }
+public class Tokens extends PTokens<Token> {
 }

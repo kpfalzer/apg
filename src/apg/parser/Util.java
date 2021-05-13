@@ -27,14 +27,15 @@
 
 package apg.parser;
 
+import apg.ast.PToken;
 import gblibx.CharBuffer;
 
 public class Util {
-    public static String getText(Token tok) {
+    public static String getText(PToken tok) {
         return (tok.isEOF()) ? "<EOF>" : tok.text;
     }
 
-    public static void invalidToken(Token tok) {
+    public static void invalidToken(PToken tok) {
         error(tok.loc, String.format("invalid token: %s", getText(tok)));
     }
 

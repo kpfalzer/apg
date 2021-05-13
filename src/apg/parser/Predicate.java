@@ -27,6 +27,8 @@
 
 package apg.parser;
 
+import apg.ast.PTokens;
+
 import java.util.Set;
 
 import static apg.parser.Util.invalidToken;
@@ -34,25 +36,25 @@ import static gblibx.Util.toSet;
 
 // pred: ('&' | '!') '(' expression ')'
 public class Predicate extends TokenConsumer {
-    public static ASTNode parse(Tokens tokens) {
+    public static ASTNode parse(PTokens tokens) {
         return new Predicate(tokens).parse();
     }
 
-    private Predicate(Tokens tokens) {
+    private Predicate(PTokens tokens) {
         super(tokens);
     }
 
     private ASTNode parse() {
         final Token op = pop();
         Token tok = peek();
-        if (Token.EType.eLeftParen != tok.type) {
+        if (TokenCode.eLeftParen != tok.type) {
             invalidToken(tok, "(");
         }
         if (!Expression._FIRST.contains(popAndPeek().type)) {
             invalidToken(peek());
         }
         final Node node = new Node(op, Expression.parse(_tokens));
-        if (Token.EType.eRightParen != (tok = pop()).type) {
+        if (TokenCode.eRightParen != (tok = pop()).type) {
             invalidToken(tok, "(");
         }
         return node;
@@ -72,6 +74,6 @@ public class Predicate extends TokenConsumer {
         public final ASTNode expression;
     }
 
-    /*package*/ static final Set<Token.EType> _FIRST = toSet(Token.EType.eAnd, Token.EType.eNot);
+    /*package*/ static final Set<TokenCode> _FIRST = toSet(TokenCode.eAnd, TokenCode.eNot);
 
 }

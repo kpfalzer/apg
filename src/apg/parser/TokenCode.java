@@ -27,42 +27,42 @@
 
 package apg.parser;
 
-import apg.ast.PTokens;
+import apg.ast.IToken;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+public enum TokenCode implements IToken {
+    eIdent("<ident>"),
+    eColon(':'),
+    eSemi(';'),
+    eLeftBrack('['), eRightBrack(']'),
+    eLeftParen('('), eRightParen(')'),
+    eMinus('-'),
+    ePlus('+'),
+    eQmark('?'),
+    eStar('*'),
+    eEOF("<EOF>"),
+    eAnd('&'),
+    eOr('|'),
+    eNot('!'),
+    eQuoted("'<quoted>'"),
+    eCaret('^'),
+    eNonWS("\\S+");
 
-import static apg.parser.Util.invalidToken;
-
-public class ApgFile extends TokenConsumer {
-    public static ASTNode parse(PTokens tokens) {
-        return new ApgFile(tokens).parse();
+    private TokenCode(String detail) {
+        __detail = detail;
     }
 
-    private ApgFile(PTokens tokens) {
-        super(tokens);
+    private TokenCode(char detail) {
+        __detail = Character.toString(detail);
     }
 
-    private ASTNode parse() {
-        while (__FIRST.contains(peek().type)) {
-            __node.items.add(Item.parse(_tokens));
-        }
-        final Token tok = pop();
-        if (tok.type != TokenCode.eEOF) {
-            invalidToken(tok);
-        }
-        return __node;
+    private TokenCode() {
+        __detail = null;
     }
 
-    public static class Node extends ASTNode {
-        public String toString() {
-            return toString(items, "\n");
-        }
-
-        public final List<ASTNode> items = new LinkedList<>();
+    @Override
+    public String getDetail() {
+        return __detail;
     }
 
-    private static final Set<TokenCode> __FIRST = Item._FIRST;
-    private final Node __node = new Node();
+    private final String __detail;
 }

@@ -27,35 +27,11 @@
 
 package apg.parser;
 
-import static apg.parser.Util.invalidToken;
+import apg.ast.PTokenConsumer;
+import apg.ast.PTokens;
 
-public class TokenConsumer {
-    protected TokenConsumer(Tokens tokens) {
-        _tokens = tokens;
+public class TokenConsumer extends PTokenConsumer<Token> {
+    protected TokenConsumer(PTokens tokens) {
+        super(tokens);
     }
-
-    public Token pop() {
-        return _tokens.pop();
-    }
-
-    public Token peek() {
-        return _tokens.peek();
-    }
-
-    public Token popAndPeek() {
-        pop();
-        return peek();
-    }
-
-    public boolean isEOF() {
-        return peek().isEOF();
-    }
-
-    public Token popAndNotExpectEOF() {
-        final Token tok = pop();
-        if (tok.isEOF()) invalidToken(tok);
-        return tok;
-    }
-
-    protected final Tokens _tokens;
 }

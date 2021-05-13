@@ -25,44 +25,8 @@
  *
  */
 
-package apg.parser;
+package apg.ast;
 
-import apg.ast.PTokens;
-
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
-
-import static apg.parser.Util.invalidToken;
-
-public class ApgFile extends TokenConsumer {
-    public static ASTNode parse(PTokens tokens) {
-        return new ApgFile(tokens).parse();
-    }
-
-    private ApgFile(PTokens tokens) {
-        super(tokens);
-    }
-
-    private ASTNode parse() {
-        while (__FIRST.contains(peek().type)) {
-            __node.items.add(Item.parse(_tokens));
-        }
-        final Token tok = pop();
-        if (tok.type != TokenCode.eEOF) {
-            invalidToken(tok);
-        }
-        return __node;
-    }
-
-    public static class Node extends ASTNode {
-        public String toString() {
-            return toString(items, "\n");
-        }
-
-        public final List<ASTNode> items = new LinkedList<>();
-    }
-
-    private static final Set<TokenCode> __FIRST = Item._FIRST;
-    private final Node __node = new Node();
+public interface IToken {
+    public String getDetail();
 }

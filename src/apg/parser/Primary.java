@@ -27,6 +27,8 @@
 
 package apg.parser;
 
+import apg.ast.PTokens;
+
 import java.util.Set;
 
 import static apg.parser.Util.invalidToken;
@@ -38,11 +40,11 @@ import static gblibx.Util.toSet;
  * | terminal
  */
 public class Primary extends TokenConsumer {
-    public static ASTNode parse(Tokens tokens) {
+    public static ASTNode parse(PTokens tokens) {
         return new Primary(tokens).parse();
     }
 
-    private Primary(Tokens tokens) {
+    private Primary(PTokens tokens) {
         super(tokens);
     }
 
@@ -78,5 +80,5 @@ public class Primary extends TokenConsumer {
     }
 
     private Node __node;
-    /*package*/ static final Set<Token.EType> _FIRST = toSet(Token.EType.eIdent, Terminal._FIRST);
+    /*package*/ static final Set<TokenCode> _FIRST = toSet(TokenCode.eIdent, Terminal._FIRST);
 }

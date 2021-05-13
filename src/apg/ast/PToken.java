@@ -25,44 +25,21 @@
  *
  */
 
-package apg.parser;
+package apg.ast;
 
-import apg.ast.PTokens;
+import gblibx.CharBuffer;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+public abstract class PToken<E extends IToken> extends TerminalNode {
 
-import static apg.parser.Util.invalidToken;
+    public abstract boolean isEOF();
 
-public class ApgFile extends TokenConsumer {
-    public static ASTNode parse(PTokens tokens) {
-        return new ApgFile(tokens).parse();
+    protected PToken(CharBuffer.Mark loc, String text, E type) {
+        this.loc = loc;
+        this.text = text;
+        this.type = type;
     }
 
-    private ApgFile(PTokens tokens) {
-        super(tokens);
-    }
-
-    private ASTNode parse() {
-        while (__FIRST.contains(peek().type)) {
-            __node.items.add(Item.parse(_tokens));
-        }
-        final Token tok = pop();
-        if (tok.type != TokenCode.eEOF) {
-            invalidToken(tok);
-        }
-        return __node;
-    }
-
-    public static class Node extends ASTNode {
-        public String toString() {
-            return toString(items, "\n");
-        }
-
-        public final List<ASTNode> items = new LinkedList<>();
-    }
-
-    private static final Set<TokenCode> __FIRST = Item._FIRST;
-    private final Node __node = new Node();
+    public final CharBuffer.Mark loc;
+    public final String text;
+    public final E type;
 }

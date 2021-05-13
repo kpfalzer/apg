@@ -27,6 +27,7 @@
 
 package apg.parser;
 
+import apg.ast.PTokens;
 import gblibx.Util;
 
 import java.util.LinkedList;
@@ -37,11 +38,11 @@ import static apg.parser.Util.invalidToken;
 
 // IDENT ':' expression* ';'
 public class NonTerminal extends TokenConsumer {
-    public static ASTNode parse(Tokens tokens) {
+    public static ASTNode parse(PTokens tokens) {
         return new NonTerminal(tokens).parse();
     }
 
-    private NonTerminal(Tokens tokens) {
+    private NonTerminal(PTokens tokens) {
         super(tokens);
     }
 
@@ -51,11 +52,11 @@ public class NonTerminal extends TokenConsumer {
             invalidToken(tok);
         }
         __node = new Node(tok);
-        if ((tok = pop()).type != Token.EType.eColon) {
+        if ((tok = pop()).type != TokenCode.eColon) {
             apg.parser.Util.invalidToken(tok, ":");
         }
         expressions();
-        if ((tok = pop()).type != Token.EType.eSemi) {
+        if ((tok = pop()).type != TokenCode.eSemi) {
             apg.parser.Util.invalidToken(tok, ";");
         }
         return __node;
@@ -63,7 +64,7 @@ public class NonTerminal extends TokenConsumer {
 
     private void expressions() {
         Token tok;
-        while ((tok = peek()).type != Token.EType.eSemi) {
+        while ((tok = peek()).type != TokenCode.eSemi) {
             if (!Expression._FIRST.contains(tok.type)) {
                 invalidToken(tok);
             }
@@ -87,6 +88,6 @@ public class NonTerminal extends TokenConsumer {
     }
 
     private Node __node;
-    /*package*/ static final Set<Token.EType> _FIRST = Util.toSet(Token.EType.eIdent);
+    /*package*/ static final Set<TokenCode> _FIRST = Util.toSet(TokenCode.eIdent);
 
 }

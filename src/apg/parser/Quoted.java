@@ -27,6 +27,8 @@
 
 package apg.parser;
 
+import apg.ast.PTokens;
+
 import java.util.Set;
 
 import static apg.parser.Util.invalidToken;
@@ -34,11 +36,11 @@ import static gblibx.Util.toSet;
 
 // quoted: '\'' [^\']* '\''
 public class Quoted extends TokenConsumer {
-    public static ASTNode parse(Tokens tokens) {
+    public static ASTNode parse(PTokens tokens) {
         return new Quoted(tokens).parse();
     }
 
-    private Quoted(Tokens tokens) {
+    private Quoted(PTokens tokens) {
         super(tokens);
     }
 
@@ -61,6 +63,6 @@ public class Quoted extends TokenConsumer {
     }
 
     private Node __node;
-    /*protected*/ static final Set<Token.EType> _FIRST = toSet(Token.EType.eQuoted);
+    /*protected*/ static final Set<TokenCode> _FIRST = toSet(TokenCode.eQuoted);
 
 }

@@ -27,6 +27,8 @@
 
 package apg.parser;
 
+import apg.ast.PTokens;
+
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -39,11 +41,11 @@ import static gblibx.Util.toSet;
 
 // range: '[' '^'? (.-. | .)+ ']'
 public class Range extends TokenConsumer {
-    public static ASTNode parse(Tokens tokens) {
+    public static ASTNode parse(PTokens tokens) {
         return new Range(tokens).parse();
     }
 
-    private Range(Tokens tokens) {
+    private Range(PTokens tokens) {
         super(tokens);
     }
 
@@ -57,12 +59,12 @@ public class Range extends TokenConsumer {
     }
 
     private void items(Token start) {
-        boolean hasNotPrefix = peek().type == Token.EType.eCaret;
+        boolean hasNotPrefix = peek().type == TokenCode.eCaret;
         __node = new Node(start, hasNotPrefix);
         if (hasNotPrefix) pop();
         while (!isClose()) {
             final Token tok = popAndNotExpectEOF();
-            if (peek().type == Token.EType.eMinus) {
+            if (peek().type == TokenCode.eMinus) {
                 pop();// -
                 final Token tok2 = popAndNotExpectEOF();
                 __node.items.add(new Token[]{tok, tok2});
@@ -74,7 +76,7 @@ public class Range extends TokenConsumer {
     }
 
     private boolean isClose() {
-        return peek().type == Token.EType.eRightBrack;
+        return peek().type == TokenCode.eRightBrack;
     }
 
     public static class Node extends ASTNode {
@@ -107,5 +109,5 @@ public class Range extends TokenConsumer {
     }
 
     private Node __node;
-    /*protected*/ static final Set<Token.EType> _FIRST = toSet(Token.EType.eLeftBrack);
+    /*protected*/ static final Set<TokenCode> _FIRST = toSet(TokenCode.eLeftBrack);
 }

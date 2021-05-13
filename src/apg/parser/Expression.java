@@ -27,6 +27,8 @@
 
 package apg.parser;
 
+import apg.ast.PTokens;
+
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -53,11 +55,11 @@ import static gblibx.Util.toSet;
  *  EE: '|'? E   //EE1
  */
 public class Expression extends TokenConsumer {
-    public static ASTNode parse(Tokens tokens) {
+    public static ASTNode parse(PTokens tokens) {
         return new Expression(tokens).parse();
     }
 
-    private Expression(Tokens tokens) {
+    private Expression(PTokens tokens) {
         super(tokens);
     }
 
@@ -67,7 +69,7 @@ public class Expression extends TokenConsumer {
             invalidToken(tok);
         }
         __node = new Node(tok);
-        if (tok.type == Token.EType.eLeftParen) {
+        if (tok.type == TokenCode.eLeftParen) {
             __node.add(e1(pop()));
         } else if (Predicate._FIRST.contains(tok.type)) {
             __node.add(e2(peek()));
@@ -78,7 +80,7 @@ public class Expression extends TokenConsumer {
             tok = peek();
             // EE*
             boolean isAlt = false;
-            if (Token.EType.eOr == tok.type) {
+            if (TokenCode.eOr == tok.type) {
                 pop();
                 isAlt = true;
             } else if (_FIRST.contains(tok.type)) {
@@ -112,7 +114,7 @@ public class Expression extends TokenConsumer {
                 Util.invalidToken(tok);
             expression = Expression.parse(_tokens);
             tok = pop();
-            if (Token.EType.eRightParen != tok.type) {
+            if (TokenCode.eRightParen != tok.type) {
                 Util.invalidToken(tok, ")");
             }
             if (Repeat._FIRST.contains(peek().type)) {
@@ -238,7 +240,7 @@ public class Expression extends TokenConsumer {
     }
 
     private Node __node;
-    /*package*/ static final Set<Token.EType> _FIRST = toSet(
-            Token.EType.eLeftParen, Predicate._FIRST, Primary._FIRST
+    /*package*/ static final Set<TokenCode> _FIRST = toSet(
+            TokenCode.eLeftParen, Predicate._FIRST, Primary._FIRST
     );
 }

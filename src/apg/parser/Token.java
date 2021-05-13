@@ -27,47 +27,23 @@
 
 package apg.parser;
 
+import apg.ast.PToken;
 import gblibx.CharBuffer;
 
-public class Token {
-    public enum EType {
-        eIdent,
-        eColon,
-        eSemi,
-        eLeftBrack, eRightBrack,
-        eLeftParen, eRightParen,
-        eMinus,
-        ePlus,
-        eQmark,
-        eStar,
-        eEOF,
-        eAnd,
-        eOr,
-        eNot,
-        eQuoted,
-        eCaret,
-        eNonWS  //single non-whitespace char (not above)
-    }
-
+public class Token extends PToken<TokenCode> {
     public boolean isEOF() {
-        return type == EType.eEOF;
+        return type == TokenCode.eEOF;
     }
 
     public boolean isIdent() {
-        return EType.eIdent == type;
+        return TokenCode.eIdent == type;
     }
 
     public boolean identIsEOF() {
         return isIdent() && text.equals("EOF");
     }
 
-    public Token(CharBuffer.Mark loc, String text, EType type) {
-        this.loc = loc;
-        this.text = text;
-        this.type = type;
+    public Token(CharBuffer.Mark loc, String text, TokenCode type) {
+        super(loc, text, type);
     }
-
-    public final CharBuffer.Mark loc;
-    public final String text;
-    public final EType type;
 }

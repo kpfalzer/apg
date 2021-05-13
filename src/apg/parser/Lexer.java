@@ -52,7 +52,7 @@ public class Lexer {
                     if (isBlockComment() || isLineComment())
                         ;//do nothing
                     else
-                        accept(mark(), Character.toString(accept()), Token.EType.eNonWS);
+                        accept(mark(), Character.toString(accept()), TokenCode.eNonWS);
                     break;
                 case '\\':
                     escaped();
@@ -67,11 +67,11 @@ public class Lexer {
                         ident();
                     } else {
                         invariant(__NONWS.matcher(Character.toString(__la)).matches());
-                        accept(Token.EType.eNonWS);
+                        accept(TokenCode.eNonWS);
                     }
             }
         }
-        accept(Token.EType.eEOF);
+        accept(TokenCode.eEOF);
         return __tokens;
     }
 
@@ -88,14 +88,14 @@ public class Lexer {
             else done = '\'' == __la;
         }
         invariant(done);//todo: no closure on quoted
-        accept(start, text.toString(), Token.EType.eQuoted);
+        accept(start, text.toString(), TokenCode.eQuoted);
     }
 
     private void escaped() {
         final CharBuffer.Mark start = mark();
         char la1 = la(1);
         invariant(la1 != CharBuffer.EOF);
-        accept(start, String.format("\\%c", la1), Token.EType.eNonWS);
+        accept(start, String.format("\\%c", la1), TokenCode.eNonWS);
         accept(2);
     }
 
@@ -136,7 +136,7 @@ public class Lexer {
                 break;//while
             }
         }
-        accept(start, text.toString(), Token.EType.eIdent);
+        accept(start, text.toString(), TokenCode.eIdent);
     }
 
     private CharBuffer.Mark mark() {
@@ -175,31 +175,31 @@ public class Lexer {
         __src.accept(n);
     }
 
-    private void accept(Token.EType type) {
+    private void accept(TokenCode type) {
         accept(mark(), Character.toString(accept()), type);
     }
 
-    private void accept(CharBuffer.Mark mark, String text, Token.EType type) {
+    private void accept(CharBuffer.Mark mark, String text, TokenCode type) {
         __tokens.add(new Token(mark, text, type));
     }
 
-    private static final Map<Character, Token.EType> __typeByChar = new HashMap<>();
+    private static final Map<Character, TokenCode> __typeByChar = new HashMap<>();
 
     static {
-        __typeByChar.put(':', Token.EType.eColon);
-        __typeByChar.put(';', Token.EType.eSemi);
-        __typeByChar.put('[', Token.EType.eLeftBrack);
-        __typeByChar.put(']', Token.EType.eRightBrack);
-        __typeByChar.put('(', Token.EType.eLeftParen);
-        __typeByChar.put(')', Token.EType.eRightParen);
-        __typeByChar.put('-', Token.EType.eMinus);
-        __typeByChar.put('+', Token.EType.ePlus);
-        __typeByChar.put('*', Token.EType.eStar);
-        __typeByChar.put('?', Token.EType.eQmark);
-        __typeByChar.put('&', Token.EType.eAnd);
-        __typeByChar.put('|', Token.EType.eOr);
-        __typeByChar.put('!', Token.EType.eNot);
-        __typeByChar.put('^', Token.EType.eCaret);
+        __typeByChar.put(':', TokenCode.eColon);
+        __typeByChar.put(';', TokenCode.eSemi);
+        __typeByChar.put('[', TokenCode.eLeftBrack);
+        __typeByChar.put(']', TokenCode.eRightBrack);
+        __typeByChar.put('(', TokenCode.eLeftParen);
+        __typeByChar.put(')', TokenCode.eRightParen);
+        __typeByChar.put('-', TokenCode.eMinus);
+        __typeByChar.put('+', TokenCode.ePlus);
+        __typeByChar.put('*', TokenCode.eStar);
+        __typeByChar.put('?', TokenCode.eQmark);
+        __typeByChar.put('&', TokenCode.eAnd);
+        __typeByChar.put('|', TokenCode.eOr);
+        __typeByChar.put('!', TokenCode.eNot);
+        __typeByChar.put('^', TokenCode.eCaret);
     }
 
     static {
