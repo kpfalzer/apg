@@ -30,10 +30,12 @@ package apg.ast;
 import static apg.parser.Util.invalidToken;
 import static gblibx.Util.castobj;
 
-public class PTokenConsumer<T extends PToken> {
+public abstract class PTokenConsumer<T extends PToken> {
     protected PTokenConsumer(PTokens tokens) {
         _tokens = tokens;
     }
+
+    public abstract Node parse();
 
     public T pop() {
         return castobj(_tokens.pop());
