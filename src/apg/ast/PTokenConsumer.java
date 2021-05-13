@@ -27,6 +27,12 @@
 
 package apg.ast;
 
+import apg.parser.ASTNode;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
 import static apg.parser.Util.invalidToken;
 import static gblibx.Util.castobj;
 
@@ -35,7 +41,7 @@ public abstract class PTokenConsumer<T extends PToken> {
         _tokens = tokens;
     }
 
-    public abstract Node parse();
+    //todo: public abstract Node parse();
 
     public T pop() {
         return castobj(_tokens.pop());

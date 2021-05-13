@@ -39,7 +39,7 @@ public class ExpressionTest {
 
     @Test
     public void parse() {
-        if (false) {
+        if (true) {
             final String[] T1 = new String[]{
                     "a b",
                     "(  ( a )*  b )*",
