@@ -27,13 +27,15 @@
 
 package apg.parser;
 
+import apg.ast.Node;
 import gblibx.CharBuffer;
 import gblibx.FileCharBuffer;
 import org.junit.Test;
 
 import java.io.IOException;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class ExpressionTest {
 
@@ -48,21 +50,21 @@ public class ExpressionTest {
             };
             for (String t1 : T1) {
                 Tokens tokens = new Lexer(new CharBuffer(t1)).tokenize();
-                ASTNode ast = Expression.parse(tokens);
-                System.out.println("==> " +ast.toString());
-                assertNotNull(ast);
+                Node ast = Expression.parse(tokens);
+                //System.out.println("==> " +ast.toString());
+                //assertNotNull(ast);
                 assertTrue(tokens.isEOF());
             }
         }
-        if (false) {
+        if (true) {
             Tokens tokens = null;
             try {
                 tokens = new Lexer(new FileCharBuffer("grammar.txt")).tokenize();
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            ASTNode ast = ApgFile.parse(tokens);
-            System.out.println("\n\n" + ast.toString());
+            Node ast = ApgFile.parse(tokens);
+            //System.out.println("\n\n" + ast.toString());
             assertNotNull(ast);
             assertTrue(tokens.isEmpty());
         }
@@ -73,7 +75,7 @@ public class ExpressionTest {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            ASTNode ast = ApgFile.parse(tokens);
+            Node ast = ApgFile.parse(tokens);
             //System.out.println("\n\n"+ast.toString());
             assertNotNull(ast);
             assertTrue(tokens.isEmpty());

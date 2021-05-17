@@ -27,6 +27,7 @@
 
 package apg.parser;
 
+import apg.ast.Node;
 import gblibx.CharBuffer;
 import org.junit.Test;
 
@@ -39,7 +40,7 @@ public class RangeTest {
         {
             final Lexer lexer = new Lexer(new CharBuffer("[^abc0-9\\[\\]\\-+]"));
             final Tokens tokens = lexer.tokenize();
-            final ASTNode ast = Range.parse(tokens);
+            final Node ast = Range.parse(tokens);
             System.out.println(ast.toString());
             assertNotEquals(null, ast);
         }

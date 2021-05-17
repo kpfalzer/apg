@@ -27,14 +27,23 @@
 
 package apg.parser;
 
+import apg.ast.Node;
 import apg.ast.PTokens;
 
 import java.util.Set;
 
+import static java.util.Objects.isNull;
+
 public class Item {
-    public static ASTNode parse(PTokens tokens) {
+    public static Node parse(PTokens tokens) {
         return NonTerminal.parse(tokens);
     }
 
-    /*package*/ static final Set<TokenCode> _FIRST = NonTerminal._FIRST;
+    public static Set<TokenCode> getFirstSet() {
+        if (isNull(__FIRST)) __FIRST = NonTerminal.getFirstSet();
+        return __FIRST;
+    }
+
+    private static Set<TokenCode> __FIRST = null;
+
 }

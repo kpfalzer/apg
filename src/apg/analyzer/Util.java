@@ -25,44 +25,23 @@
  *
  */
 
-package apg.parser;
+package apg.analyzer;
 
-import apg.ast.PTokens;
-
-import java.util.Set;
-
-import static apg.parser.Util.invalidToken;
-import static gblibx.Util.toSet;
-
-// quoted: '\'' [^\']* '\''
-public class Quoted extends TokenConsumer {
-    public static ASTNode parse(PTokens tokens) {
-        return new Quoted(tokens).parse();
+public class Util {
+    public static void error(boolean exit, String msg) {
+        System.err.printf("Error: %s\n", msg);
+        if (exit) System.exit(1);
     }
 
-    private Quoted(PTokens tokens) {
-        super(tokens);
+    public static void error(String msg) {
+        error(false, msg);
     }
 
-    private ASTNode parse() {
-        Token tok = pop();
-        if (!_FIRST.contains(tok.type)) {
-            invalidToken(tok);
-        }
-        return (__node = new Node(tok));
+    public static void error(boolean exit, String format, Object... args) {
+        error(exit, String.format(format, args));
     }
 
-    public static class Node extends ASTNode {
-        private Node(Token tok) {
-            super(tok);
-        }
-
-        public String toString() {
-            return toString(this);
-        }
+    public static void error(String format, Object... args) {
+        error(false, format, args);
     }
-
-    private Node __node;
-    /*protected*/ static final Set<TokenCode> _FIRST = toSet(TokenCode.eQuoted);
-
 }

@@ -27,53 +27,56 @@
 
 package apg.parser;
 
+import apg.ast.Node;
+import apg.ast.NonTerminalNode;
 import apg.ast.PTokens;
 
+import java.util.Collections;
 import java.util.Set;
 
 import static apg.parser.Util.invalidToken;
 import static gblibx.Util.toSet;
+import static java.util.Objects.isNull;
 
 // pred: ('&' | '!') '(' expression ')'
 public class Predicate extends TokenConsumer {
-    public static ASTNode parse(PTokens tokens) {
+    public static Node parse(PTokens tokens) {
         return new Predicate(tokens).parse();
     }
 
     private Predicate(PTokens tokens) {
-        super(tokens);
+        super(tokens, new Predicate.XNode());
     }
 
-    private ASTNode parse() {
+    public Node parse() {
         final Token op = pop();
         Token tok = peek();
         if (TokenCode.eLeftParen != tok.type) {
             invalidToken(tok, "(");
         }
-        if (!Expression._FIRST.contains(popAndPeek().type)) {
+        if (!Expression.getFirstSet().contains(popAndPeek().type)) {
             invalidToken(peek());
         }
-        final Node node = new Node(op, Expression.parse(_tokens));
+        addNode(op, Expression.parse(_tokens));
         if (TokenCode.eRightParen != (tok = pop()).type) {
             invalidToken(tok, "(");
         }
-        return node;
+        return getNode();
     }
 
-    public static class Node extends ASTNode {
-        private Node(Token start, ASTNode expr) {
-            super(start);
-            expression = expr;
-        }
-
-        @Override
-        public String toString() {
-            return toString(this, expression);
-        }
-
-        public final ASTNode expression;
+    public static class XNode extends NonTerminalNode {
     }
 
-    /*package*/ static final Set<TokenCode> _FIRST = toSet(TokenCode.eAnd, TokenCode.eNot);
+    public static Set<TokenCode> getFirstSet() {
+        if (isNull(__FIRST)) __FIRST = Collections.unmodifiableSet(
+                toSet(
+                        TokenCode.eAnd,
+                        TokenCode.eNot
+                )
+        );
+        return __FIRST;
+    }
+
+    private static Set<TokenCode> __FIRST = null;
 
 }

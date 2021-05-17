@@ -27,10 +27,15 @@
 
 package apg.parser;
 
+import apg.ast.Node;
 import apg.ast.PTokenConsumer;
 import apg.ast.PTokens;
 
-public class TokenConsumer extends PTokenConsumer<Token> {
+public abstract class TokenConsumer extends PTokenConsumer<Token> {
+    protected TokenConsumer(PTokens tokens, Node node) {
+        super(tokens, node);
+    }
+
     protected TokenConsumer(PTokens tokens) {
         super(tokens);
     }

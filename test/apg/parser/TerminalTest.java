@@ -27,6 +27,7 @@
 
 package apg.parser;
 
+import apg.ast.Node;
 import gblibx.CharBuffer;
 import org.junit.Test;
 
@@ -41,9 +42,9 @@ public class TerminalTest {
         final Lexer lexer = new Lexer(new CharBuffer(text));
         final Tokens tokens = lexer.tokenize();
         while (!tokens.isEOF()) {
-            assertTrue(Terminal._FIRST.contains(tokens.peek().type));
-            final ASTNode ast = Terminal.parse(tokens);
-            System.out.println(ast.toString());
+            assertTrue(Terminal.getFirstSet().contains(tokens.peek().type));
+            final Node ast = Terminal.parse(tokens);
+            //System.out.println(ast.toString());
             assertNotEquals(null, ast);
         }
     }

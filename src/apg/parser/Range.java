@@ -27,87 +27,63 @@
 
 package apg.parser;
 
+import apg.ast.Node;
+import apg.ast.NonTerminalNode;
 import apg.ast.PTokens;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.Collections;
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static apg.parser.Util.invalidToken;
-import static gblibx.Util.castobj;
 import static gblibx.Util.toSet;
+import static java.util.Objects.isNull;
 
 // range: '[' '^'? (.-. | .)+ ']'
 public class Range extends TokenConsumer {
-    public static ASTNode parse(PTokens tokens) {
+    public static Node parse(PTokens tokens) {
         return new Range(tokens).parse();
     }
 
     private Range(PTokens tokens) {
-        super(tokens);
+        super(tokens, new Range.XNode());
     }
 
-    private ASTNode parse() {
+    public Node parse() {
         final Token tok = pop();
-        if (!_FIRST.contains(tok.type)) {
+        if (!getFirstSet().contains(tok.type)) {
             invalidToken(tok);
         }
-        items(tok);
-        return __node;
+        return parse(tok);
     }
 
-    private void items(Token start) {
-        boolean hasNotPrefix = peek().type == TokenCode.eCaret;
-        __node = new Node(start, hasNotPrefix);
-        if (hasNotPrefix) pop();
+    public Node parse(Token start) {
+        if (peek().type == TokenCode.eCaret) addNode(pop());
+        Token[] toks = new Token[3];
         while (!isClose()) {
-            final Token tok = popAndNotExpectEOF();
+            toks[0] = popAndNotExpectEOF();
             if (peek().type == TokenCode.eMinus) {
-                pop();// -
-                final Token tok2 = popAndNotExpectEOF();
-                __node.items.add(new Token[]{tok, tok2});
+                toks[1] = pop();// -
+                toks[2] = popAndNotExpectEOF();
+                addNode(toks);
             } else {
-                __node.items.add(tok);
+                addNode(toks[0]);
             }
         }
-        pop(); // ]
+        pop(); //]
+        return getNode();
     }
 
     private boolean isClose() {
         return peek().type == TokenCode.eRightBrack;
     }
 
-    public static class Node extends ASTNode {
-        private Node(Token start, boolean hasNotPrefix) {
-            super(start);
-            this.hasNotPrefix = hasNotPrefix;
-        }
-
-        public String toString() {
-            return String.format("%s: [%c%s]",
-                    getLocAndName(this),
-                    (hasNotPrefix) ? '^' : '\0',
-                    items.stream().map(e -> toString(e)).collect(Collectors.joining())
-            );
-        }
-
-        private String toString(Object e) {
-            String s;
-            if (e instanceof Token)
-                s = ((Token) e).text;
-            else {
-                Token[] toks = castobj(e);
-                s = Stream.of(toks).map(x -> x.text).collect(Collectors.joining("-"));
-            }
-            return s;
-        }
-
-        public final boolean hasNotPrefix;
-        public final List<Object> items = new LinkedList<>();
+    public static class XNode extends NonTerminalNode {
     }
 
-    private Node __node;
-    /*protected*/ static final Set<TokenCode> _FIRST = toSet(TokenCode.eLeftBrack);
+    public static Set<TokenCode> getFirstSet() {
+        if (isNull(__FIRST)) __FIRST = Collections.unmodifiableSet(toSet(TokenCode.eLeftBrack));
+        return __FIRST;
+    }
+
+    private static Set<TokenCode> __FIRST = null;
 }

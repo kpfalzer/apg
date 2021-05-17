@@ -27,21 +27,27 @@
 
 package apg.ast;
 
-import apg.parser.ASTNode;
-
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import gblibx.Util;
 
 import static apg.parser.Util.invalidToken;
 import static gblibx.Util.castobj;
+import static gblibx.Util.invariant;
 
 public abstract class PTokenConsumer<T extends PToken> {
-    protected PTokenConsumer(PTokens tokens) {
+    protected PTokenConsumer(PTokens tokens, Node node) {
         _tokens = tokens;
+        _node = node;
     }
 
-    //todo: public abstract Node parse();
+    protected PTokenConsumer(PTokens tokens) {
+        this(tokens, null);
+    }
+
+    public abstract Node parse();
+
+    public Node getNode() {
+        return _node;
+    }
 
     public T pop() {
         return castobj(_tokens.pop());
@@ -66,5 +72,17 @@ public abstract class PTokenConsumer<T extends PToken> {
         return tok;
     }
 
+    protected PTokenConsumer addNode(Node... nodes) {
+        Util.<NonTerminalNode>castobj(_node).add(nodes);
+        return this;
+    }
+
+    protected PTokenConsumer setNode(PToken tok) {
+        invariant(_node instanceof TerminalNode.WNode);
+        Util.<TerminalNode.WNode>castobj(_node).setNode(tok);
+        return this;
+    }
+
     protected final PTokens _tokens;
+    protected Node _node;
 }

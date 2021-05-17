@@ -27,58 +27,55 @@
 
 package apg.parser;
 
+import apg.ast.Node;
+import apg.ast.NonTerminalNode;
 import apg.ast.PTokens;
 
+import java.util.Collections;
 import java.util.Set;
 
 import static apg.parser.Util.invalidToken;
-import static gblibx.Util.isNonNull;
 import static gblibx.Util.toSet;
+import static java.util.Objects.isNull;
 
 /**
  * primary: IDENT
  * | terminal
  */
 public class Primary extends TokenConsumer {
-    public static ASTNode parse(PTokens tokens) {
+    public static Node parse(PTokens tokens) {
         return new Primary(tokens).parse();
     }
 
     private Primary(PTokens tokens) {
-        super(tokens);
+        super(tokens, new Primary.XNode());
     }
 
-    private ASTNode parse() {
+    public Node parse() {
         Token tok = peek();
         if (tok.isIdent() && !tok.identIsEOF()) {
-            __node = new Node(pop());
-        } else if (Terminal._FIRST.contains(tok.type)) {
-            __node = new Node(tok, Terminal.parse(_tokens));
+            addNode(pop());
+        } else if (Terminal.getFirstSet().contains(tok.type)) {
+            addNode(Terminal.parse(_tokens));
         } else {
             invalidToken(tok);
         }
-        return __node;
+        return getNode();
     }
 
-    public static class Node extends ASTNode {
-        private Node(Token start, ASTNode item) {
-            super(start);
-            this.item = item;
-        }
-
-        private Node(Token start) {
-            this(start, null);
-        }
-
-        public String toString() {
-            return (isNonNull(item))
-                    ? toString(this, item)
-                    : toString(this);
-        }
-
-        public final ASTNode item;
+    public static class XNode extends NonTerminalNode {
     }
 
-    private Node __node;
-    /*package*/ static final Set<TokenCode> _FIRST = toSet(TokenCode.eIdent, Terminal._FIRST);
+    public static Set<TokenCode> getFirstSet() {
+        if (isNull(__FIRST)) __FIRST = Collections.unmodifiableSet(
+                toSet(
+                        TokenCode.eIdent,
+                        Terminal.getFirstSet()
+                )
+        );
+        return __FIRST;
+    }
+
+    private static Set<TokenCode> __FIRST = null;
+
 }

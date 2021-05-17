@@ -27,9 +27,35 @@
 
 package apg.ast;
 
+import static gblibx.Util.invariant;
+import static java.util.Objects.isNull;
+
 public class TerminalNode implements Node {
     @Override
     public boolean isTerminal() {
         return true;
+    }
+
+    protected TerminalNode() {
+    }
+
+    /**
+     * Convenience class for implementing wrapped TerminalNode.
+     */
+    public static class WNode extends TerminalNode {
+        protected WNode(PToken tok) {
+            _tok = tok;
+        }
+
+        protected WNode() {
+            this(null);
+        }
+
+        public void setNode(PToken tok) {
+            invariant(isNull(_tok));
+            _tok = tok;
+        }
+
+        protected PToken _tok;
     }
 }

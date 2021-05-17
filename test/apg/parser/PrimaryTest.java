@@ -27,10 +27,12 @@
 
 package apg.parser;
 
+import apg.ast.Node;
 import gblibx.CharBuffer;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
 
 public class PrimaryTest {
 
@@ -40,9 +42,9 @@ public class PrimaryTest {
         final Lexer lexer = new Lexer(new CharBuffer(text));
         final Tokens tokens = lexer.tokenize();
         while (!tokens.isEOF()) {
-            assertTrue(Primary._FIRST.contains(tokens.peek().type));
-            final ASTNode ast = Primary.parse(tokens);
-            System.out.println(ast.toString());
+            assertTrue(Primary.getFirstSet().contains(tokens.peek().type));
+            final Node ast = Primary.parse(tokens);
+            //System.out.println(ast.toString());
             assertNotEquals(null, ast);
         }
     }

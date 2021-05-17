@@ -30,6 +30,8 @@ package apg.parser;
 import gblibx.CharBuffer;
 import org.junit.Test;
 
+import static apg.parser.TokenCode.eEOF;
+import static apg.parser.TokenCode.eQuoted;
 import static org.junit.Assert.*;
 
 public class QuotedTest {
@@ -39,9 +41,8 @@ public class QuotedTest {
         {
             final Lexer lexer = new Lexer(new CharBuffer("'quick brown fox'"));
             final Tokens tokens = lexer.tokenize();
-            final ASTNode ast = Quoted.parse(tokens);
-            System.out.println(ast.toString());
-            assertNotEquals(null, ast);
+            assertTrue(eQuoted == tokens.pop().type);
+            assertTrue(eEOF == tokens.peek().type);
         }
 
     }

@@ -27,43 +27,46 @@
 
 package apg.parser;
 
+import apg.ast.Node;
 import apg.ast.PTokens;
+import apg.ast.TerminalNode;
 
+import java.util.Collections;
 import java.util.Set;
 
 import static apg.parser.Util.invalidToken;
 import static gblibx.Util.toSet;
+import static java.util.Objects.isNull;
 
 // rep: '?' | '*' | '+'
 public class Repeat extends TokenConsumer {
-    public static ASTNode parse(PTokens tokens) {
+    public static Node parse(PTokens tokens) {
         return new Repeat(tokens).parse();
     }
 
     private Repeat(PTokens tokens) {
-        super(tokens);
+        super(tokens, new Repeat.XNode());
     }
 
-    private ASTNode parse() {
+    public Node parse() {
         Token tok = pop();
-        if (!_FIRST.contains(tok.type)) {
+        if (!getFirstSet().contains(tok.type)) {
             invalidToken(tok);
         }
-        return (__node = new Node(tok));
+        return setNode(tok).getNode();
     }
 
-    public static class Node extends ASTNode {
-        private Node(Token tok) {
-            super(tok);
-        }
-
-        public String toString() {
-            return toString(this);
-        }
+    public static class XNode extends TerminalNode.WNode {
     }
 
-    private Node __node;
-    /*package*/ static final Set<TokenCode> _FIRST = toSet(
-            TokenCode.eQmark, TokenCode.eStar, TokenCode.ePlus);
+    public static Set<TokenCode> getFirstSet() {
+        if (isNull(__FIRST)) __FIRST = Collections.unmodifiableSet(
+                toSet(
+                        TokenCode.eQmark, TokenCode.eStar, TokenCode.ePlus
+                )
+        );
+        return __FIRST;
+    }
 
+    private static Set<TokenCode> __FIRST = null;
 }

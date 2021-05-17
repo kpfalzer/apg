@@ -25,21 +25,31 @@
  *
  */
 
-package apg.ast;
+package apg.analyzer;
 
-import static gblibx.Util.downcast;
+import apg.ast.Node;
+import apg.parser.ApgFile;
+import apg.parser.Lexer;
+import apg.parser.Tokens;
+import gblibx.FileCharBuffer;
+import org.junit.Test;
 
-public interface Node {
-    public boolean isTerminal();
+import java.io.IOException;
 
-    default public boolean isNonTerminal() {
-        return !isTerminal();
-    }
+import static org.junit.Assert.*;
 
-    default public PToken toToken() {
-        return downcast(this);
-    }
-    default public NonTerminalNode toTerminalNode() {
-        return downcast(this);
+public class AnalyzeTest {
+
+    @Test
+    public void analyze() {
+        Tokens tokens = null;
+        try {
+            tokens = new Lexer(new FileCharBuffer("sv2012.peg")).tokenize();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        Node ast = ApgFile.parse(tokens);
+        Analyze anz = Analyze.analyze(ast);
+        boolean debug = true;
     }
 }

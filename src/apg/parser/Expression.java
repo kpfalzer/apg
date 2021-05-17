@@ -27,15 +27,16 @@
 
 package apg.parser;
 
+import apg.ast.Node;
+import apg.ast.NonTerminalNode;
 import apg.ast.PTokens;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.Collections;
 import java.util.Set;
 
 import static apg.parser.Util.invalidToken;
-import static gblibx.Util.isNonNull;
 import static gblibx.Util.toSet;
+import static java.util.Objects.isNull;
 
 /**
  * expression: expression '|' expression
@@ -55,192 +56,95 @@ import static gblibx.Util.toSet;
  *  EE: '|'? E   //EE1
  */
 public class Expression extends TokenConsumer {
-    public static ASTNode parse(PTokens tokens) {
+    public static Node parse(PTokens tokens) {
         return new Expression(tokens).parse();
     }
 
     private Expression(PTokens tokens) {
-        super(tokens);
+        super(tokens, new Expression.XNode());
     }
 
-    private ASTNode parse() {
+    public static class XNode extends NonTerminalNode {
+        public static class AltNode extends NonTerminalNode {
+            private AltNode(Node alt, Node expr) {
+                super.add(alt, expr);
+            }
+        }
+    }
+
+    public Node parse() {
         Token tok = peek();
-        if (!_FIRST.contains(tok.type)) {
+        if (!getFirstSet().contains(tok.type)) {
             invalidToken(tok);
         }
-        __node = new Node(tok);
         if (tok.type == TokenCode.eLeftParen) {
-            __node.add(e1(pop()));
-        } else if (Predicate._FIRST.contains(tok.type)) {
-            __node.add(e2(peek()));
+            e1(pop());
+        } else if (Predicate.getFirstSet().contains(tok.type)) {
+            e2(peek());
         } else {
-            __node.add(e3(peek()));
+            e3(peek());
         }
         while (!isEOF()) {
             tok = peek();
             // EE*
-            boolean isAlt = false;
+            Node altNode = null;
             if (TokenCode.eOr == tok.type) {
-                pop();
-                isAlt = true;
-            } else if (_FIRST.contains(tok.type)) {
+                altNode = pop();
+            } else if (getFirstSet().contains(tok.type)) {
                 ;
             } else {
                 break;//while
             }
-            final ASTNode expression = Expression.parse(_tokens);
-            __node.add(isAlt, expression);
+            final Node expr = Expression.parse(_tokens);
+            addNode(isNull(altNode) ? expr : new XNode.AltNode(altNode, expr));
         }
-        return __node;
-    }
-
-    private E1 e1(Token lparen) {
-        return new E1(lparen).parse();
-    }
-
-    private E2 e2(Token la0) {
-        return new E2(la0).parse();
-    }
-
-    private E3 e3(Token la0) {
-        return new E3(la0).parse();
+        return getNode();
     }
 
     // '(' . E ')' rep?
-    private class E1 extends ASTNode {
-        private E1 parse() {
-            Token tok = peek();
-            if (!Expression._FIRST.contains(tok.type))
-                Util.invalidToken(tok);
-            expression = Expression.parse(_tokens);
-            tok = pop();
-            if (TokenCode.eRightParen != tok.type) {
-                Util.invalidToken(tok, ")");
-            }
-            if (Repeat._FIRST.contains(peek().type)) {
-                repeat = Repeat.parse(_tokens);
-            }
-            return this;
+    private void e1(Token lparen) {
+        Token tok = peek();
+        if (!Expression.getFirstSet().contains(tok.type))
+            Util.invalidToken(tok);
+        Node expression = Expression.parse(_tokens);
+        tok = pop();
+        if (TokenCode.eRightParen != tok.type) {
+            Util.invalidToken(tok, ")");
         }
-
-        private E1(Token start) {
-            super(start);
+        addNode(lparen, expression, tok);
+        if (Repeat.getFirstSet().contains(peek().type)) {
+            addNode(Repeat.parse(_tokens));
         }
-
-        @Override
-        public String toString() {
-            return String.format("%s: ( %s ) %s",
-                    getLocAndName(this),
-                    expression.toString(),
-                    (isNonNull(repeat)) ? repeat.toString() : ""
-            );
-        }
-
-        public ASTNode expression = null, repeat = null;
     }
 
     // . pred E rep?
-    private class E2 extends ASTNode {
-        private E2 parse() {
-            Token tok = _start;
-            predicate = Predicate.parse(_tokens);
-            expression = Expression.parse(_tokens);
-            if (Repeat._FIRST.contains(peek().type)) {
-                repeat = Repeat.parse(_tokens);
-            }
-            return this;
+    private void e2(Token la0) {
+        addNode(Predicate.parse(_tokens), Expression.parse(_tokens));
+        if (Repeat.getFirstSet().contains(peek().type)) {
+            addNode(Repeat.parse(_tokens));
         }
-
-        private E2(Token start) {
-            super(start);
-        }
-
-        @Override
-        public String toString() {
-            return String.format("%s: %s %s %s",
-                    getLocAndName(this),
-                    predicate.toString(),
-                    expression.toString(),
-                    (isNonNull(repeat)) ? repeat.toString() : ""
-            );
-        }
-
-        public ASTNode predicate = null, expression = null, repeat = null;
     }
 
     // . primary rep?
-    private class E3 extends ASTNode {
-        private E3(Token start) {
-            super(start);
+    private void e3(Token la0) {
+        addNode(Primary.parse(_tokens));
+        Token tok = peek();
+        if (Repeat.getFirstSet().contains(tok.type)) {
+            addNode(Repeat.parse(_tokens));
         }
-
-        private E3 parse() {
-            primary = Primary.parse(_tokens);
-            Token tok = peek();
-            if (Repeat._FIRST.contains(tok.type)) {
-                repeat = Repeat.parse(_tokens);
-            }
-            return this;
-        }
-
-        @Override
-        public String toString() {
-            return String.format("%s: %s %s",
-                    getLocAndName(this),
-                    primary.toString(),
-                    (isNonNull(repeat)) ? repeat.toString() : ""
-            );
-        }
-
-        public ASTNode primary = null, repeat = null;
     }
 
-    public static class Node extends ASTNode {
-        private Node(Token start) {
-            super(start);
-        }
-
-        public String toString() {
-            return String.format("%s: %s",
-                    getLocAndName(this),
-                    toString(items, "\n  ")
-            );
-        }
-
-        public void add(boolean isAlt, ASTNode expression) {
-            items.add(new Item(isAlt, expression));
-        }
-
-        public void add(ASTNode expression) {
-            add(false, expression);
-        }
-
-        public static class Item extends gblibx.Util.Pair<Boolean, ASTNode> {
-            public Item(boolean isAlt, ASTNode expression) {
-                super(isAlt, expression);
-            }
-
-            public boolean isAlt() {
-                return v1;
-            }
-
-            public ASTNode expression() {
-                return v2;
-            }
-
-            public String toString() {
-                return String.format("%s %s",
-                        isAlt() ? "| " : "",
-                        expression().toString()
-                );
-            }
-        }
-
-        public final List<Item> items = new LinkedList<>();
+    public static Set<TokenCode> getFirstSet() {
+        if (isNull(__FIRST)) __FIRST = Collections.unmodifiableSet(
+                toSet(
+                        TokenCode.eLeftParen,
+                        Predicate.getFirstSet(),
+                        Primary.getFirstSet()
+                )
+        );
+        return __FIRST;
     }
 
-    private Node __node;
-    /*package*/ static final Set<TokenCode> _FIRST = toSet(
-            TokenCode.eLeftParen, Predicate._FIRST, Primary._FIRST
-    );
+    private static Set<TokenCode> __FIRST = null;
+
 }

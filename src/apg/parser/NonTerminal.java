@@ -27,31 +27,36 @@
 
 package apg.parser;
 
+import apg.ast.Node;
+import apg.ast.NonTerminalNode;
 import apg.ast.PTokens;
-import gblibx.Util;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.Collections;
 import java.util.Set;
 
 import static apg.parser.Util.invalidToken;
+import static gblibx.Util.toSet;
+import static java.util.Objects.isNull;
 
 // IDENT ':' expression* ';'
 public class NonTerminal extends TokenConsumer {
-    public static ASTNode parse(PTokens tokens) {
+    public static Node parse(PTokens tokens) {
         return new NonTerminal(tokens).parse();
     }
 
     private NonTerminal(PTokens tokens) {
-        super(tokens);
+        super(tokens, new NonTerminal.XNode());
     }
 
-    private ASTNode parse() {
+    public static class XNode extends NonTerminalNode {
+    }
+
+    public Node parse() {
         Token tok = pop();
-        if (!_FIRST.contains(tok.type)) {
+        if (!getFirstSet().contains(tok.type)) {
             invalidToken(tok);
         }
-        __node = new Node(tok);
+        addNode(tok);
         if ((tok = pop()).type != TokenCode.eColon) {
             apg.parser.Util.invalidToken(tok, ":");
         }
@@ -59,35 +64,29 @@ public class NonTerminal extends TokenConsumer {
         if ((tok = pop()).type != TokenCode.eSemi) {
             apg.parser.Util.invalidToken(tok, ";");
         }
-        return __node;
+        return getNode();
     }
 
     private void expressions() {
         Token tok;
         while ((tok = peek()).type != TokenCode.eSemi) {
-            if (!Expression._FIRST.contains(tok.type)) {
+            if (!Expression.getFirstSet().contains(tok.type)) {
                 invalidToken(tok);
             }
-            __node.exprs.add(Expression.parse(_tokens));
+            addNode(Expression.parse(_tokens));
         }
     }
 
-    public static class Node extends ASTNode {
-        private Node(Token ident) {
-            super(ident);
-        }
-
-        public String toString() {
-            return String.format("%s: %s",
-                    getLocAndName(this),
-                    toString(exprs, 4)
-            );
-        }
-
-        public final List<ASTNode> exprs = new LinkedList<>();
+    public static Set<TokenCode> getFirstSet() {
+        if (isNull(__FIRST)) __FIRST = Collections.unmodifiableSet(
+                toSet(
+                        TokenCode.eIdent
+                )
+        );
+        return __FIRST;
     }
 
-    private Node __node;
-    /*package*/ static final Set<TokenCode> _FIRST = Util.toSet(TokenCode.eIdent);
+    private static Set<TokenCode> __FIRST = null;
+
 
 }

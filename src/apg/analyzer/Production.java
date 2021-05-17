@@ -25,21 +25,40 @@
  *
  */
 
-package apg.ast;
+package apg.analyzer;
+
+import apg.ast.Node;
+import apg.ast.PToken;
+import apg.parser.Expression;
+import apg.parser.NonTerminal;
+
+import java.util.List;
 
 import static gblibx.Util.downcast;
+import static gblibx.Util.invariant;
 
-public interface Node {
-    public boolean isTerminal();
-
-    default public boolean isNonTerminal() {
-        return !isTerminal();
+public class Production {
+    public Production(Node node) {
+        __node = downcast(node);
+        initialize();
     }
 
-    default public PToken toToken() {
-        return downcast(this);
+    private void initialize() {
+        final List<Node> nodes = __node.getNodes();
+        invariant(!nodes.isEmpty());
+        __name = nodes.get(0).toToken();
+        if (1 < nodes.size()) __expression = downcast(nodes.get(1));
     }
-    default public NonTerminalNode toTerminalNode() {
-        return downcast(this);
+
+    public String getName() {
+        return __name.text;
     }
+
+    public String getLocation() {
+        return __name.loc.toString();
+    }
+
+    private final NonTerminal.XNode __node;
+    private PToken __name;
+    private Expression.XNode __expression = null;
 }

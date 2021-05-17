@@ -27,42 +27,41 @@
 
 package apg.parser;
 
+import apg.ast.Node;
+import apg.ast.NonTerminalNode;
 import apg.ast.PTokens;
 
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Set;
 
 import static apg.parser.Util.invalidToken;
+import static java.util.Objects.isNull;
 
 public class ApgFile extends TokenConsumer {
-    public static ASTNode parse(PTokens tokens) {
+    public static Node parse(PTokens tokens) {
         return new ApgFile(tokens).parse();
     }
 
     private ApgFile(PTokens tokens) {
-        super(tokens);
+        super(tokens, new ApgFile.XNode());
     }
 
-    private ASTNode parse() {
-        while (__FIRST.contains(peek().type)) {
-            __node.items.add(Item.parse(_tokens));
+    public Node parse() {
+        while (getFirstSet().contains(peek().type)) {
+            addNode(Item.parse(_tokens));
         }
         final Token tok = pop();
         if (tok.type != TokenCode.eEOF) {
             invalidToken(tok);
         }
-        return __node;
+        return getNode();
     }
 
-    public static class Node extends ASTNode {
-        public String toString() {
-            return toString(items, "\n");
-        }
+    public static class XNode extends NonTerminalNode {}
 
-        public final List<ASTNode> items = new LinkedList<>();
+    public static Set<TokenCode> getFirstSet() {
+        if (isNull(__FIRST)) __FIRST = Item.getFirstSet();
+        return __FIRST;
     }
 
-    private static final Set<TokenCode> __FIRST = Item._FIRST;
-    private final Node __node = new Node();
+    private static Set<TokenCode> __FIRST = null;
 }

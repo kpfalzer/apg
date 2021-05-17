@@ -27,61 +27,56 @@
 
 package apg.parser;
 
+import apg.ast.Node;
+import apg.ast.NonTerminalNode;
 import apg.ast.PTokens;
 
+import java.util.Collections;
 import java.util.Set;
 
+import static apg.parser.TokenCode.eQuoted;
 import static apg.parser.Util.invalidToken;
-import static gblibx.Util.isNonNull;
 import static gblibx.Util.toSet;
+import static java.util.Objects.isNull;
 
-// terminal: quoted | range | EOF
+// terminal: QUOTED | range | EOF
 public class Terminal extends TokenConsumer {
-    public static ASTNode parse(PTokens tokens) {
+    public static Node parse(PTokens tokens) {
         return new Terminal(tokens).parse();
     }
 
     private Terminal(PTokens tokens) {
-        super(tokens);
+        super(tokens, new Terminal.XNode());
     }
 
-    private ASTNode parse() {
+    public Node parse() {
         final Token tok = peek();
-        if (Quoted._FIRST.contains(tok.type)) {
-            __node = new Node(tok, Quoted.parse(_tokens));
-        } else if (Range._FIRST.contains(tok.type)) {
-            __node = new Node(tok, Range.parse(_tokens));
+        if (eQuoted == tok.type) {
+            addNode(pop());
+        } else if (Range.getFirstSet().contains(tok.type)) {
+            addNode(Range.parse(_tokens));
         } else if (tok.identIsEOF()) {
-            __node = new Node(pop());
+            addNode(pop());
         } else {
             invalidToken(tok);
         }
-        return __node;
+        return getNode();
     }
 
-    public static class Node extends ASTNode {
-        private Node(Token start, ASTNode ele) {
-            super(start);
-            item = ele;
-        }
-
-        private Node(Token start) {
-            this(start, null);
-        }
-
-        public String toString() {
-            return (isNonNull(item))
-                    ? toString(this, item)
-                    : toString(this);
-        }
-
-        public final ASTNode item;
+    public static class XNode extends NonTerminalNode {
     }
 
-    private Node __node;
-    /*package*/ static final Set<TokenCode> _FIRST = toSet(
-            Quoted._FIRST,
-            Range._FIRST,
-            TokenCode.eIdent /*EOF*/
-    );
+    public static Set<TokenCode> getFirstSet() {
+        if (isNull(__FIRST)) __FIRST = Collections.unmodifiableSet(
+                toSet(
+                        eQuoted,
+                        Range.getFirstSet(),
+                        TokenCode.eIdent
+                )
+        );
+        return __FIRST;
+    }
+
+    private static Set<TokenCode> __FIRST = null;
+
 }

@@ -30,8 +30,8 @@ primary: IDENT
 | terminal
 ;
 
-terminal: quoted | range | EOF ;
+terminal: QUOTED | range | EOF ;
 
-quoted: '\'' [^\']* '\'' ;
+QUOTED: '\'' [^\']* '\'' ;
 
 //range: '[' '^'? (.-. | .)+ ']' ;
