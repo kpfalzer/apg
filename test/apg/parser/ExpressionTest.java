@@ -43,6 +43,7 @@ public class ExpressionTest {
     public void parse() {
         if (true) {
             final String[] T1 = new String[]{
+                    "e1 e2 | f1 (f2 | f3) | g1",
                     "a b",
                     "(  ( a )*  b )*",
                     "foo* yoyo | bar | (&(e) a b c | d e f) | (g|h) | i j k",
