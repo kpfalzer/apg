@@ -48,6 +48,7 @@ public class Production {
         invariant(!nodes.isEmpty());
         __name = nodes.get(0).toToken();
         if (1 < nodes.size()) __expression = downcast(nodes.get(1));
+        invariant(2 >= nodes.size()); //do NOT expect more than 1 Expression (even tho grammar has expression*)
     }
 
     public String getName() {
