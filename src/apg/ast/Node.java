@@ -39,7 +39,7 @@ public interface Node {
     default public PToken toToken() {
         return downcast(this);
     }
-    default public NonTerminalNode toTerminalNode() {
+    default public NonTerminalNode toNonTerminalNode() {
         return downcast(this);
     }
 }

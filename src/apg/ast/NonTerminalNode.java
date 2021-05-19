@@ -55,7 +55,12 @@ public class NonTerminalNode implements Node {
     }
 
     public List<Node> getNodes() {
-        return isNull(__nodes) ? Collections.EMPTY_LIST : Collections.unmodifiableList(__nodes);
+        return getNodes(false);
+    }
+
+    public List<Node> getNodes(boolean modify) {
+        return isNull(__nodes) ? Collections.EMPTY_LIST
+                : ((modify) ? __nodes : Collections.unmodifiableList(__nodes));
     }
 
     protected List<Node> __nodes = null;
