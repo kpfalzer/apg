@@ -77,12 +77,12 @@ public abstract class PTokenConsumer<T extends PToken> {
         return this;
     }
 
-    public PTokenConsumer addNode(Node... nodes) {
+    protected PTokenConsumer addNode(Node... nodes) {
         Util.<NonTerminalNode>castobj(_node).add(nodes);
         return this;
     }
 
-    public PTokenConsumer setNode(PToken tok) {
+    protected PTokenConsumer setNode(PToken tok) {
         invariant(_node instanceof TerminalNode.WNode);
         Util.<TerminalNode.WNode>castobj(_node).setNode(tok);
         return this;

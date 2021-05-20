@@ -27,13 +27,14 @@
 
 package apg.parser;
 
-import apg.analyzer.Production;
 import apg.ast.Node;
 import apg.ast.NonTerminalNode;
+import apg.ast.PTokenConsumer;
 import apg.ast.PTokens;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.Set;
 
 import static apg.parser.Util.invalidToken;
@@ -75,6 +76,11 @@ public class Expression extends TokenConsumer {
         private XNode() {
         }
 
+        protected XNode add(Collection<Node> nodes) {
+            super.add(nodes);
+            return this;
+        }
+
         public static class AltNode extends NonTerminalNode {
             private AltNode(Node lhs, Node rhs) {
                 super.add(lhs, rhs);
@@ -112,6 +118,18 @@ public class Expression extends TokenConsumer {
                 addAlt(expr);
         }
         return getNode();
+    }
+
+    protected PTokenConsumer addNode(Node... nodes) {
+        if ((1 == nodes.length) && (nodes[0] instanceof XNode.AltNode)) {
+            //push existing to front of lhs
+            LinkedList<Node> lhs = nodes[0].toNonTerminalNode().getNodes().getFirst().toNonTerminalNode().getNodes();
+            LinkedList<Node> infront = super.getNode().toNonTerminalNode().getNodes();
+            while (!infront.isEmpty())
+                lhs.offerFirst(infront.removeLast());
+        }
+        super.addNode(nodes);
+        return this;
     }
 
     private void addAlt(Node rhs) {
