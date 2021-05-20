@@ -30,8 +30,8 @@ package apg.ast;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
-import java.util.List;
 
+import static gblibx.Util.downcast;
 import static java.util.Objects.isNull;
 
 public class NonTerminalNode implements Node {
@@ -54,14 +54,11 @@ public class NonTerminalNode implements Node {
         return this;
     }
 
-    public List<Node> getNodes() {
-        return getNodes(false);
+    public LinkedList<Node> getNodes() {
+        return isNull(__nodes) ? __EMPTY_LIST : __nodes;
     }
 
-    public List<Node> getNodes(boolean modify) {
-        return isNull(__nodes) ? Collections.EMPTY_LIST
-                : ((modify) ? __nodes : Collections.unmodifiableList(__nodes));
-    }
+    protected LinkedList<Node> __nodes = null;
 
-    protected List<Node> __nodes = null;
+    private static final LinkedList<Node> __EMPTY_LIST = downcast(Collections.EMPTY_LIST);
 }
