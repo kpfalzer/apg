@@ -46,4 +46,9 @@ public class Token extends PToken<TokenCode> {
     public Token(CharBuffer.Mark loc, String text, TokenCode type) {
         super(loc, text, type);
     }
+
+    @Override
+    public String toString() {
+        return identIsEOF() ? "<EOF>" : text;
+    }
 }

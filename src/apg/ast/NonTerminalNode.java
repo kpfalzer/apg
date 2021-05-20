@@ -31,6 +31,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
+import java.util.stream.Collectors;
 
 import static gblibx.Util.downcast;
 import static java.util.Objects.isNull;
@@ -59,6 +60,12 @@ public class NonTerminalNode implements Node {
         if (isNull(__nodes)) __nodes = new LinkedList<>();
         __nodes.addAll(nodes);
         return this;
+    }
+
+    public String toString() {
+        return getNodes().stream()
+                .map(n -> n.toString())
+                .collect(Collectors.joining(" "));
     }
 
     public LinkedList<Node> getNodes() {

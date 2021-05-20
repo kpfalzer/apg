@@ -41,6 +41,10 @@ public abstract class TerminalNode implements Node {
 
     public abstract PToken getToken();
 
+    public String toString() {
+        return getToken().toString();
+    }
+
     /**
      * Convenience class for implementing wrapped TerminalNode.
      */

@@ -49,6 +49,9 @@ public class NonTerminal extends TokenConsumer {
     }
 
     public static class XNode extends NonTerminalNode {
+        public String toString() {
+            return String.format("%s\n",super.toString());
+        }
     }
 
     public Node parse() {

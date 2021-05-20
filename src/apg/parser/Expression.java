@@ -36,6 +36,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static apg.parser.Util.invalidToken;
 import static gblibx.Util.invariant;
@@ -84,6 +85,12 @@ public class Expression extends TokenConsumer {
         public static class AltNode extends NonTerminalNode {
             private AltNode(Node lhs, Node rhs) {
                 super.add(lhs, rhs);
+            }
+
+            public String toString() {
+                return getNodes().stream()
+                        .map(n -> n.toString())
+                        .collect(Collectors.joining("\n  |  "));
             }
         }
     }

@@ -44,6 +44,8 @@ public abstract class PToken<E extends IToken> extends TerminalNode {
         this.type = type;
     }
 
+    public abstract String toString();
+
     public final CharBuffer.Mark loc;
     public final String text;
     public final E type;
