@@ -27,14 +27,17 @@
 
 package apg.parser;
 
+import apg.analyzer.Production;
 import apg.ast.Node;
 import apg.ast.NonTerminalNode;
 import apg.ast.PTokens;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
 
 import static apg.parser.Util.invalidToken;
+import static gblibx.Util.invariant;
 import static gblibx.Util.toSet;
 import static java.util.Objects.isNull;
 
@@ -65,9 +68,16 @@ public class Expression extends TokenConsumer {
     }
 
     public static class XNode extends NonTerminalNode {
+        private XNode(Collection<Node> nodes) {
+            super.add(nodes);
+        }
+
+        private XNode() {
+        }
+
         public static class AltNode extends NonTerminalNode {
-            private AltNode(Node alt, Node expr) {
-                super.add(alt, expr);
+            private AltNode(Node lhs, Node rhs) {
+                super.add(lhs, rhs);
             }
         }
     }
@@ -96,9 +106,18 @@ public class Expression extends TokenConsumer {
                 break;//while
             }
             final Node expr = Expression.parse(_tokens);
-            addNode(isNull(altNode) ? expr : new XNode.AltNode(altNode, expr));
+            if (isNull(altNode))
+                addNode(expr); //todo: flatten, so 'e1 e2' stay at same level
+            else
+                addAlt(expr);
         }
         return getNode();
+    }
+
+    private void addAlt(Node rhs) {
+        invariant(super.getNode().isNonTerminal());
+        final Expression.XNode lhs = new XNode(super.getNode().toNonTerminalNode().getNodes());
+        super.replace(new XNode.AltNode(lhs, rhs));
     }
 
     // '(' . E ')' rep?

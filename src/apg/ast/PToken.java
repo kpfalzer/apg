@@ -33,6 +33,11 @@ public abstract class PToken<E extends IToken> extends TerminalNode {
 
     public abstract boolean isEOF();
 
+    @Override
+    public PToken getToken() {
+        return this;
+    }
+
     protected PToken(CharBuffer.Mark loc, String text, E type) {
         this.loc = loc;
         this.text = text;

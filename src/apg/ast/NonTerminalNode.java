@@ -28,6 +28,7 @@
 package apg.ast;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 
@@ -54,11 +55,17 @@ public class NonTerminalNode implements Node {
         return this;
     }
 
+    protected NonTerminalNode add(Collection<Node> nodes) {
+        if (isNull(__nodes)) __nodes = new LinkedList<>();
+        __nodes.addAll(nodes);
+        return this;
+    }
+
     public LinkedList<Node> getNodes() {
         return isNull(__nodes) ? __EMPTY_LIST : __nodes;
     }
 
     protected LinkedList<Node> __nodes = null;
 
-    private static final LinkedList<Node> __EMPTY_LIST = downcast(Collections.EMPTY_LIST);
+    private static final LinkedList<Node> __EMPTY_LIST = new LinkedList<>();
 }

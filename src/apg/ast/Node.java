@@ -28,6 +28,7 @@
 package apg.ast;
 
 import static gblibx.Util.downcast;
+import static gblibx.Util.invariant;
 
 public interface Node {
     public boolean isTerminal();
@@ -37,8 +38,13 @@ public interface Node {
     }
 
     default public PToken toToken() {
+        return toTerminalNode().getToken();
+    }
+
+    default public TerminalNode toTerminalNode() {
         return downcast(this);
     }
+
     default public NonTerminalNode toNonTerminalNode() {
         return downcast(this);
     }

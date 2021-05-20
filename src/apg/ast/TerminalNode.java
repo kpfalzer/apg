@@ -30,7 +30,7 @@ package apg.ast;
 import static gblibx.Util.invariant;
 import static java.util.Objects.isNull;
 
-public class TerminalNode implements Node {
+public abstract class TerminalNode implements Node {
     @Override
     public boolean isTerminal() {
         return true;
@@ -38,6 +38,8 @@ public class TerminalNode implements Node {
 
     protected TerminalNode() {
     }
+
+    public abstract PToken getToken();
 
     /**
      * Convenience class for implementing wrapped TerminalNode.
@@ -49,6 +51,11 @@ public class TerminalNode implements Node {
 
         protected WNode() {
             this(null);
+        }
+
+        @Override
+        public PToken getToken() {
+            return _tok;
         }
 
         public void setNode(PToken tok) {

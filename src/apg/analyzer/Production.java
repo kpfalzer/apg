@@ -50,100 +50,10 @@ public class Production {
 
     private void initialize(NonTerminal.XNode node) {
         final List<Node> nodes = node.getNodes();
-        invariant(!nodes.isEmpty());
+        //do NOT expect more than 1 Expression (even tho grammar has expression*)
+        invariant(!nodes.isEmpty() && (2 >= nodes.size()));
         __name = nodes.get(0).toToken();
-        invariant(2 >= nodes.size()); //do NOT expect more than 1 Expression (even tho grammar has expression*)
-        if (1 < nodes.size()) __alts = flatten(nodes.get(1));
-    }
-
-    private static Alternates flatten(Node expr) {
-        return flatten(expr, new State());
-    }
-
-    /**
-     * Flatten expressions into alternates.
-     */
-    private static Alternates flatten(Node expr, State state) {
-        if (isNull(expr)) return state.alts;
-        if (expr.isTerminal()) return state.add(expr).alts;
-        final LinkedList<Node> nodes = expr.toNonTerminalNode().getNodes();
-        while (!nodes.isEmpty()) {
-            expr = nodes.remove();
-            invariant(isNonNull(expr));
-            if (expr.isTerminal()) {
-                Token tok = downcast(expr.toToken());
-                switch (tok.type) {
-                    case eLeftParen:
-                        state.add(tok);
-                        expr = nodes.pop();
-                        Alternates parend = flatten(expr);
-                        //expect the recursion to have added ')' to end of its Alternates.
-                        //want to move it up to this level.
-                        expr = parend.toNonTerminalNode().getNodes().peekLast() //last Alternate
-                                .toNonTerminalNode().getNodes().removeLast(); //the ')' token
-                        invariant(TokenCode.eRightParen == expr.toToken().type);
-                        state.add(parend).add(expr);
-                        break;
-                    default:
-                        state.add(tok);
-                }
-            } else {
-                if (expr instanceof Expression.XNode.AltNode) {
-                    final LinkedList<Node> xnodes = expr.toNonTerminalNode().getNodes();
-                    invariant(TokenCode.eOr == xnodes.peekFirst().toToken().type);
-                    if (1 < xnodes.size()) {
-                        invariant(2 == xnodes.size());
-                        state.alt = null; //forces next add to start new alt
-                        flatten(xnodes.removeLast(), state);
-                    } else {
-                        //empty alternate
-                        state.alts = Alternates.add(state.alts, new Alternate());
-                    }
-                } else {
-                    // keep at same level ?!
-                    flatten(expr, state);
-                }
-            }
-        }
-        return state.alts;
-    }
-
-    public static class Alternate extends NonTerminalNode {
-        private Alternate() {
-        }
-
-        private Alternate(Node node) {
-            add(node);
-        }
-
-        private Alternate add(Node node) {
-            super.add(node);
-            return this;
-        }
-
-        private static Alternate add(Alternate alt, Node node) {
-            return isNull(alt) ? new Alternate(node) : alt.add(node);
-        }
-    }
-
-    public static class Alternates extends NonTerminalNode {
-        private static Alternates add(Alternates alts, Alternate alt) {
-            if (isNull(alts)) alts = new Alternates();
-            alts.add(alt);
-            return alts;
-        }
-    }
-
-    private static class State {
-        public Alternate alt = null;
-        public Alternates alts = null;
-
-        private State add(Node node) {
-            boolean addToAlts = isNull(alt);
-            alt = Alternate.add(alt, node);
-            if (addToAlts) alts = Alternates.add(alts, alt);
-            return this;
-        }
+        __node = node;
     }
 
     public String getName() {
@@ -155,5 +65,5 @@ public class Production {
     }
 
     private PToken __name;
-    private Alternates __alts = null;
+    private NonTerminal.XNode __node;
 }

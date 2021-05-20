@@ -44,7 +44,9 @@ public class AnalyzeTest {
     public void analyze() {
         Tokens tokens = null;
         try {
-            tokens = new Lexer(new FileCharBuffer("sv2012.peg")).tokenize();
+            tokens = new Lexer(new FileCharBuffer(
+                    "grammar.txt"//"sv2012.peg"
+            )).tokenize();
         } catch (IOException e) {
             e.printStackTrace();
         }
