@@ -34,7 +34,6 @@ import org.junit.Test;
 
 import java.io.IOException;
 
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 public class ExpressionTest {
@@ -55,8 +54,7 @@ public class ExpressionTest {
             for (String t1 : T1) {
                 Tokens tokens = new Lexer(new CharBuffer(t1)).tokenize();
                 Node ast = Expression.parse(tokens);
-                //System.out.println("==> " +ast.toString());
-                //assertNotNull(ast);
+                System.out.println("=> " +ast.toString());
                 assertTrue(tokens.isEOF());
             }
         }
@@ -68,8 +66,7 @@ public class ExpressionTest {
                 e.printStackTrace();
             }
             Node ast = ApgFile.parse(tokens);
-            //System.out.println("\n\n" + ast.toString());
-            assertNotNull(ast);
+            System.out.println("\n\n" + ast.toString());
             assertTrue(tokens.isEmpty());
         }
         if (true) {
@@ -80,8 +77,7 @@ public class ExpressionTest {
                 e.printStackTrace();
             }
             Node ast = ApgFile.parse(tokens);
-            //System.out.println("\n\n"+ast.toString());
-            assertNotNull(ast);
+            System.out.println("\n\n"+ast.toString());
             assertTrue(tokens.isEmpty());
         }
     }

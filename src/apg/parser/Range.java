@@ -32,7 +32,9 @@ import apg.ast.NonTerminalNode;
 import apg.ast.PTokens;
 
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static apg.parser.Util.invalidToken;
 import static gblibx.Util.toSet;
@@ -64,7 +66,7 @@ public class Range extends TokenConsumer {
             if (peek().type == TokenCode.eMinus) {
                 toks[1] = pop();// -
                 toks[2] = popAndNotExpectEOF();
-                addNode(toks);
+                addNode(new XNode.Span(toks));
             } else {
                 addNode(toks[0]);
             }
@@ -78,6 +80,27 @@ public class Range extends TokenConsumer {
     }
 
     public static class XNode extends NonTerminalNode {
+        public static class Span extends NonTerminalNode {
+            private Span(Token[] eles) {
+                add(eles);
+            }
+
+            public String toString() {
+                return getNodes().stream().map(n -> n.toString()).collect(Collectors.joining());
+            }
+        }
+
+        public String toString() {
+            LinkedList<Node> tmp = new LinkedList(getNodes());
+            char not = '\0';
+            if (tmp.peek().isTerminal() && (TokenCode.eCaret == tmp.peek().toToken().type)) {
+                not = '^';
+                tmp.removeFirst();
+            }
+            return String.format("[%c%s]",
+                    not,
+                    tmp.stream().map(n -> n.toString()).collect(Collectors.joining()));
+        }
     }
 
     public static Set<TokenCode> getFirstSet() {
