@@ -42,6 +42,7 @@ public class ExpressionTest {
     public void parse() {
         if (true) {
             final String[] T1 = new String[]{
+                    "yo (a|b)",
                     "x | z",
                     "w | x | y",
                     "a b | c",

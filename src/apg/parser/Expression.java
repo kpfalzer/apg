@@ -92,6 +92,14 @@ public class Expression extends TokenConsumer {
                         .map(n -> n.toString())
                         .collect(Collectors.joining("\n  |  "));
             }
+
+            public Node getLhs() {
+                return getNodes().getFirst();
+            }
+
+            public Node getRhs() {
+                return getNodes().getLast();
+            }
         }
     }
 
