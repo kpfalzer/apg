@@ -36,8 +36,6 @@ import org.junit.Test;
 
 import java.io.IOException;
 
-import static org.junit.Assert.*;
-
 public class AnalyzeTest {
 
     @Test
@@ -45,7 +43,8 @@ public class AnalyzeTest {
         Tokens tokens = null;
         try {
             tokens = new Lexer(new FileCharBuffer(
-                    "grammar.txt"//"sv2012.peg"
+                    "grammar.txt"
+                    //"sv2012.peg"
             )).tokenize();
         } catch (IOException e) {
             e.printStackTrace();
