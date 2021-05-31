@@ -32,10 +32,7 @@ import apg.ast.NonTerminalNode;
 import apg.ast.PTokenConsumer;
 import apg.ast.PTokens;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static apg.parser.Util.invalidToken;
@@ -153,8 +150,20 @@ public class Expression extends TokenConsumer {
         super.replace(new XNode.AltNode(lhs, rhs));
     }
 
+    public static class Parenthesized extends NonTerminalNode {
+        private Parenthesized(Token lparen, Node expr, Token rparen) {
+            super.add(lparen, expr, rparen);
+        }
+    }
+
+    public static class Repeated extends NonTerminalNode {
+        private Repeated(Node e, Node op) {
+            super.add(e, op);
+        }
+    }
+
     // '(' . E ')' rep?
-    private void e1(Token lparen) {
+    private Node e1(Token lparen) {
         Token tok = peek();
         if (!Expression.getFirstSet().contains(tok.type))
             Util.invalidToken(tok);
@@ -163,27 +172,36 @@ public class Expression extends TokenConsumer {
         if (TokenCode.eRightParen != tok.type) {
             Util.invalidToken(tok, ")");
         }
-        addNode(lparen, expression, tok);
+        Node e1 = new Parenthesized(lparen, expression, tok);
         if (Repeat.getFirstSet().contains(peek().type)) {
-            addNode(Repeat.parse(_tokens));
+            e1 = new Repeated(e1, Repeat.parse(_tokens));
+        }
+        return e1;
+    }
+
+    public static class Predicated extends NonTerminalNode {
+        private Predicated(Node pred, Node expr) {
+            super.add(pred, expr);
         }
     }
 
     // . pred E rep?
-    private void e2(Token la0) {
-        addNode(Predicate.parse(_tokens), Expression.parse(_tokens));
+    private Node e2(Token la0) {
+        Node e2 = new Predicated(Predicate.parse(_tokens), Expression.parse(_tokens));
         if (Repeat.getFirstSet().contains(peek().type)) {
-            addNode(Repeat.parse(_tokens));
+            e2 = new Repeated(e2, Repeat.parse(_tokens));
         }
+        return e2;
     }
 
     // . primary rep?
-    private void e3(Token la0) {
-        addNode(Primary.parse(_tokens));
+    private Node e3(Token la0) {
+        Node e3 = Primary.parse(_tokens);
         Token tok = peek();
         if (Repeat.getFirstSet().contains(tok.type)) {
-            addNode(Repeat.parse(_tokens));
+            e3 = new Repeated(e3, Repeat.parse(_tokens));
         }
+        return e3;
     }
 
     public static Set<TokenCode> getFirstSet() {
