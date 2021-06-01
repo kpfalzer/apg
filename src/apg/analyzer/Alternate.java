@@ -28,29 +28,10 @@
 package apg.analyzer;
 
 import apg.ast.Node;
-import apg.parser.ApgFile;
-import apg.parser.Lexer;
-import apg.parser.Tokens;
-import gblibx.FileCharBuffer;
-import org.junit.Test;
+import apg.ast.NonTerminalNode;
 
-import java.io.IOException;
-
-public class AnalyzeTest {
-
-    @Test
-    public void analyze() {
-        Tokens tokens = null;
-        try {
-            tokens = new Lexer(new FileCharBuffer(
-                    "grammar.txt"
-                    //"sv2012.peg"
-            )).tokenize();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        Node ast = ApgFile.parse(tokens);
-        Analyze anz = Analyze.analyze(ast);
-        boolean debug = true;
+public class Alternate extends NonTerminalNode {
+    public Alternate(Node node) {
+        super(node);
     }
 }

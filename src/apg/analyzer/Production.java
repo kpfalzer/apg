@@ -28,32 +28,55 @@
 package apg.analyzer;
 
 import apg.ast.Node;
-import apg.ast.NonTerminalNode;
 import apg.ast.PToken;
 import apg.parser.Expression;
 import apg.parser.NonTerminal;
-import apg.parser.Token;
-import apg.parser.TokenCode;
 
 import java.util.LinkedList;
 import java.util.List;
 
 import static gblibx.Util.downcast;
 import static gblibx.Util.invariant;
-import static gblibx.Util.isNonNull;
 import static java.util.Objects.isNull;
 
 public class Production {
     public Production(Node node) {
-        initialize(downcast(node));
+        __node = downcast(node);
+        initialize();
     }
 
-    private void initialize(NonTerminal.XNode node) {
-        final List<Node> nodes = node.getNodes();
+    private void initialize() {
+        final List<Node> nodes = __node.getNodes();
         //do NOT expect more than 1 Expression (even tho grammar has expression*)
         invariant(!nodes.isEmpty() && (2 >= nodes.size()));
         __name = nodes.get(0).toToken();
-        __node = node;
+        createAlternates();
+    }
+
+    private void createAlternates() {
+        if (2 > __node.getNodes().size()) return;
+        addNode(__node.getNodes().get(1));
+    }
+
+    private void addNode(Node root) {
+        if (root instanceof Expression.XNode.AltNode) {
+            final Expression.XNode.AltNode alt = downcast(root);
+            addAlternate(alt.getLhs());
+            addNode(alt.getRhs());
+        } else if (root instanceof Expression.XNode) {
+            LinkedList<Node> alt = root.toNonTerminalNode().getNodes();
+            if ((1 == alt.size()) && (alt.getFirst() instanceof Expression.XNode.AltNode)) {
+                addNode(alt.getFirst());
+            } else {
+                addAlternate(root);
+            }
+        }
+    }
+
+    private void addAlternate(Node xalt) {
+        final Alternate alt = new Alternate(xalt);
+        if (isNull(__alternates)) __alternates = new Alternates();
+        __alternates.add(alt);
     }
 
     public String getName() {
@@ -65,5 +88,6 @@ public class Production {
     }
 
     private PToken __name;
-    private NonTerminal.XNode __node;
+    private final NonTerminal.XNode __node;
+    private Alternates __alternates = null;
 }

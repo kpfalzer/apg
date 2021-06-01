@@ -52,19 +52,22 @@ public class Predicate extends TokenConsumer {
         final Token op = pop();
         Token tok = peek();
         if (TokenCode.eLeftParen != tok.type) {
-            invalidToken(tok, "(");
+            invalidToken(tok, TokenCode.eLeftParen.getDetail());
         }
         if (!Expression.getFirstSet().contains(popAndPeek().type)) {
             invalidToken(peek());
         }
         addNode(op, Expression.parse(_tokens));
         if (TokenCode.eRightParen != (tok = pop()).type) {
-            invalidToken(tok, "(");
+            invalidToken(tok, TokenCode.eRightParen.getDetail());
         }
         return getNode();
     }
 
     public static class XNode extends NonTerminalNode {
+        public String toString() {
+            return String.format("%s(%s)", getNodes().getFirst().toString(), getNodes().getLast().toString());
+        }
     }
 
     public static Set<TokenCode> getFirstSet() {

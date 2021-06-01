@@ -50,7 +50,9 @@ public class NonTerminal extends TokenConsumer {
 
     public static class XNode extends NonTerminalNode {
         public String toString() {
-            return String.format("%s\n",super.toString());
+            return String.format("%s : %s ;\n",
+                    super.getNodes().getFirst().toString(),
+                    super.getNodes().getLast().toString());
         }
     }
 
@@ -61,11 +63,11 @@ public class NonTerminal extends TokenConsumer {
         }
         addNode(tok);
         if ((tok = pop()).type != TokenCode.eColon) {
-            apg.parser.Util.invalidToken(tok, ":");
+            apg.parser.Util.invalidToken(tok, TokenCode.eColon.getDetail());
         }
         expressions();
         if ((tok = pop()).type != TokenCode.eSemi) {
-            apg.parser.Util.invalidToken(tok, ";");
+            apg.parser.Util.invalidToken(tok, TokenCode.eSemi.getDetail());
         }
         return getNode();
     }
