@@ -34,7 +34,6 @@ import org.junit.Test;
 
 import java.io.IOException;
 
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 public class ExpressionTest {
@@ -43,9 +42,15 @@ public class ExpressionTest {
     public void parse() {
         if (true) {
             final String[] T1 = new String[]{
+                    "a b c d| e f g",
+                    "expression '|' expression\n" +
+                            "| expression rep? expression?\n" +
+                            "| '(' expression ')'\n" +
+                            "| pred expression rep? expression?\n" +
+                            "| primary",
+                    "yo (a|b)",
                     "x | z",
                     "w | x | y",
-                    "a b | c",
                     "e1 e2 | f1 (f2 | f3) | g1",
                     "a b",
                     "(  ( a )*  b )*",
@@ -55,8 +60,7 @@ public class ExpressionTest {
             for (String t1 : T1) {
                 Tokens tokens = new Lexer(new CharBuffer(t1)).tokenize();
                 Node ast = Expression.parse(tokens);
-                //System.out.println("==> " +ast.toString());
-                //assertNotNull(ast);
+                System.out.println("=> " +ast.toString());
                 assertTrue(tokens.isEOF());
             }
         }
@@ -68,8 +72,7 @@ public class ExpressionTest {
                 e.printStackTrace();
             }
             Node ast = ApgFile.parse(tokens);
-            //System.out.println("\n\n" + ast.toString());
-            assertNotNull(ast);
+            System.out.println("\n\n" + ast.toString());
             assertTrue(tokens.isEmpty());
         }
         if (true) {
@@ -80,8 +83,7 @@ public class ExpressionTest {
                 e.printStackTrace();
             }
             Node ast = ApgFile.parse(tokens);
-            //System.out.println("\n\n"+ast.toString());
-            assertNotNull(ast);
+            System.out.println("\n\n"+ast.toString());
             assertTrue(tokens.isEmpty());
         }
     }
