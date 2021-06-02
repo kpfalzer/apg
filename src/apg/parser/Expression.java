@@ -106,11 +106,11 @@ public class Expression extends TokenConsumer {
             invalidToken(tok);
         }
         if (tok.type == TokenCode.eLeftParen) {
-            e1(pop());
+            addNode(e1(pop()));
         } else if (Predicate.getFirstSet().contains(tok.type)) {
-            e2(peek());
+            addNode(e2(peek()));
         } else {
-            e3(peek());
+            addNode(e3(peek()));
         }
         while (!isEOF()) {
             tok = peek();
@@ -133,6 +133,11 @@ public class Expression extends TokenConsumer {
     }
 
     protected PTokenConsumer addNode(Node... nodes) {
+        super.addNode(nodes);
+        return this;
+    }
+
+    protected PTokenConsumer xxaddNode(Node... nodes) {
         if ((1 == nodes.length) && (nodes[0] instanceof XNode.AltNode)) {
             //push existing to front of lhs
             LinkedList<Node> lhs = nodes[0].toNonTerminalNode().getNodes().getFirst().toNonTerminalNode().getNodes();
