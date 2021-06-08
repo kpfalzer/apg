@@ -62,6 +62,10 @@ public class Expression extends TokenConsumer {
         return new Expression(tokens).parse();
     }
 
+    private static Node xparse(PTokens tokens) {
+        return new Expression(tokens).parse(false);
+    }
+
     private Expression(PTokens tokens) {
         super(tokens, new Expression.XNode());
     }
@@ -101,6 +105,10 @@ public class Expression extends TokenConsumer {
     }
 
     public Node parse() {
+        return parse(true);
+    }
+
+    private Node parse(boolean isFirst) {
         Token tok = peek();
         if (!getFirstSet().contains(tok.type)) {
             invalidToken(tok);
@@ -123,12 +131,14 @@ public class Expression extends TokenConsumer {
             } else {
                 break;//while
             }
-            final Node expr = Expression.parse(_tokens);
+            final Node expr = Expression.xparse(_tokens);
             if (isNull(altNode))
-                addNode(expr); //todo: flatten, so 'e1 e2' stay at same level
+                addNode(expr);
             else
-                addAlt(expr);
+                //just add '| expr' since we'll flatten later
+                addNode(altNode, expr);
         }
+        //todo: if isFirst: create proper tree form
         return getNode();
     }
 
@@ -137,7 +147,7 @@ public class Expression extends TokenConsumer {
         return this;
     }
 
-    protected PTokenConsumer xxaddNode(Node... nodes) {
+    protected PTokenConsumer NOTUSEDaddNode(Node... nodes) {
         if ((1 == nodes.length) && (nodes[0] instanceof XNode.AltNode)) {
             //push existing to front of lhs
             LinkedList<Node> lhs = nodes[0].toNonTerminalNode().getNodes().getFirst().toNonTerminalNode().getNodes();
@@ -149,7 +159,7 @@ public class Expression extends TokenConsumer {
         return this;
     }
 
-    private void addAlt(Node rhs) {
+    private void NOTUSEDaddAlt(Node rhs) {
         invariant(super.getNode().isNonTerminal());
         final Expression.XNode lhs = new XNode(super.getNode().toNonTerminalNode().getNodes());
         super.replace(new XNode.AltNode(lhs, rhs));
