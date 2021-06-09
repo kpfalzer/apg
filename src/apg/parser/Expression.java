@@ -142,6 +142,30 @@ public class Expression extends TokenConsumer {
         return getNode();
     }
 
+    public static class RewriteNode extends  NonTerminalNode {
+        public NonTerminalNode add(Node... nodes) {
+            return super.add(nodes);
+        }
+    }
+
+    private Node rewrite() {
+        RewriteNode rwn = new RewriteNode();
+        LinkedList<Node> curr = super.getNode().toNonTerminalNode().getNodes();
+        while (! curr.isEmpty()) {
+            Node top = curr.peek();
+            if (top.isTerminal()) {
+                if (top.toToken().type == TokenCode.eOr) {
+                   ;//todo
+                } else {
+                    rwn.add(curr.pop());
+                }
+            } else {
+                ;//todo
+            }
+        }
+        return getNode();
+    }
+
     protected PTokenConsumer addNode(Node... nodes) {
         super.addNode(nodes);
         return this;
