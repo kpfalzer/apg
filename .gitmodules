@@ -1,0 +1,3 @@
+[submodule "gblibx"]
+	path = gblibx
+	url = git@github.com:kpfalzer/gblibx.git

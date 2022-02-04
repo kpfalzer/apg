@@ -75,7 +75,7 @@ public class ExpressionTest {
             System.out.println("\n\n" + ast.toString());
             assertTrue(tokens.isEmpty());
         }
-        if (true) {
+        if (false) {
             Tokens tokens = null;
             try {
                 tokens = new Lexer(new FileCharBuffer("sv2012.peg")).tokenize();
