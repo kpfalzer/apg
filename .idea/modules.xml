@@ -3,7 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/apg.iml" filepath="$PROJECT_DIR$/apg.iml" />
-      <module fileurl="file://$PROJECT_DIR$/../gblibx/gblibx.iml" filepath="$PROJECT_DIR$/../gblibx/gblibx.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../aceMVC/lib/gblibx/gblibx.iml" filepath="$PROJECT_DIR$/../aceMVC/lib/gblibx/gblibx.iml" />
     </modules>
   </component>
 </project>
