@@ -32,9 +32,12 @@ import apg.ast.NonTerminalNode;
 import gblibx.Util;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import static apg.analyzer.Util.error;
+import static java.util.Objects.isNull;
 
 public class Analyze {
     public static Analyze analyze(Node ast) {
@@ -45,32 +48,73 @@ public class Analyze {
         __ast = ast;
     }
 
-    public Analyze analyze() {
+    private Analyze analyze() {
         Util.<NonTerminalNode, Node>downcast(__ast).getNodes().stream()
-                .map(n -> new Production(n))
+                .map(Production::new)
                 .forEach(p -> {
                     final String name = p.getName();
+                    __firstProduction = (isNull(__firstProduction)) ? p : __firstProduction;
                     if (__productionByName.containsKey(name)) {
                         redefinedError(p);
                     } else {
                         __productionByName.put(name, p);
                     }
                 });
-        //todo
+        checkDefined();
         if (0 < __errorCnt) {
             error(true, "%d error(s) precludes further processing", __errorCnt);
         }
         return this;
     }
 
+    /**
+     * Check that all reference production(s) are defined.
+     * @return this object.
+     */
+    private Analyze checkDefined() {
+        Set<String> checked = new HashSet<>();
+        return checkDefined(null, __firstProduction.getName(), checked);
+    }
+
+    private Analyze checkDefined(String parent, String name, Set<String> checked) {
+        if (checked.contains(name)) {
+            return this;
+        }
+        checked.add(name);
+        if (! __productionByName.containsKey(name)) {
+            lerror("production '%s' referenced undefined '%s'", parent, name);
+        }
+        final Production prod = __productionByName.get(name);
+        /*todo
+        for (Alternate alt : prod.getAlternates()) {
+            for (Node anode : alt.getNodes()) {
+                for (Node node : anode.toNonTerminalNode().getNodes()) {
+                    if (node.isTerminal()) {
+                        final PToken tk = node.toToken();
+                        if (tk.type == TokenCode.eIdent) {
+                            checkDefined(name, tk.text, checked);
+                        }
+                    }
+                }
+            }
+        }
+         */
+        return this;
+    }
+
     private void redefinedError(Production here) {
         final Production previous = __productionByName.get(here.getName());
-        error("%s: redefines '%s': previously defined (%s)",
+        lerror("%s: redefines '%s': previously defined (%s)",
                 here.getLocation(), here.getName(), previous.getLocation());
+    }
+
+    private void lerror(String format, Object... args) {
+        error(format, args);
         __errorCnt++;
     }
 
     private final Node __ast;
     private final Map<String, Production> __productionByName = new HashMap<>();
     private int __errorCnt = 0;
+    private Production __firstProduction = null;
 }

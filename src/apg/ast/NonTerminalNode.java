@@ -29,11 +29,9 @@ package apg.ast;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.stream.Collectors;
 
-import static gblibx.Util.downcast;
 import static java.util.Objects.isNull;
 
 public class NonTerminalNode implements Node {

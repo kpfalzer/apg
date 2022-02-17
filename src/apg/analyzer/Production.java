@@ -87,6 +87,10 @@ public class Production {
         return __name.loc.toString();
     }
 
+    public Alternates getAlternates() {
+        return __alternates;
+    }
+
     private PToken __name;
     private final NonTerminal.XNode __node;
     private Alternates __alternates = null;
