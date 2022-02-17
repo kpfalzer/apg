@@ -29,6 +29,7 @@ package apg.analyzer;
 
 import apg.ast.Node;
 import apg.ast.NonTerminalNode;
+import apg.parser.TokenCode;
 import gblibx.Util;
 
 import java.util.HashMap;
@@ -37,6 +38,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static apg.analyzer.Util.error;
+import static apg.analyzer.Util.warn;
 import static java.util.Objects.isNull;
 
 public class Analyze {
@@ -53,14 +55,20 @@ public class Analyze {
                 .map(Production::new)
                 .forEach(p -> {
                     final String name = p.getName();
-                    __firstProduction = (isNull(__firstProduction)) ? p : __firstProduction;
-                    if (__productionByName.containsKey(name)) {
-                        redefinedError(p);
+                    if (name.startsWith("_")) {
+                        lerror("%s: '%s': production definition ignored since name starts with '_'",
+                                p.getLineLocation(), name);
                     } else {
-                        __productionByName.put(name, p);
+                        __firstProduction = (isNull(__firstProduction)) ? p : __firstProduction;
+                        if (__productionByName.containsKey(name)) {
+                            redefinedError(p);
+                        } else {
+                            __productionByName.put(name, p);
+                        }
                     }
                 });
-        checkDefined();
+        checkDefined()
+                .checkNotUsed();
         if (0 < __errorCnt) {
             error(true, "%d error(s) precludes further processing", __errorCnt);
         }
@@ -69,43 +77,49 @@ public class Analyze {
 
     /**
      * Check that all reference production(s) are defined.
+     *
      * @return this object.
      */
     private Analyze checkDefined() {
-        Set<String> checked = new HashSet<>();
-        return checkDefined(null, __firstProduction.getName(), checked);
+        return checkDefined(null, __firstProduction.getName());
     }
 
-    private Analyze checkDefined(String parent, String name, Set<String> checked) {
-        if (checked.contains(name)) {
+    private Analyze checkDefined(Production parent, String name) {
+        if (__usedProductions.contains(name)) {
             return this;
         }
-        checked.add(name);
-        if (! __productionByName.containsKey(name)) {
-            lerror("production '%s' referenced undefined '%s'", parent, name);
-        }
-        final Production prod = __productionByName.get(name);
-        /*todo
-        for (Alternate alt : prod.getAlternates()) {
-            for (Node anode : alt.getNodes()) {
-                for (Node node : anode.toNonTerminalNode().getNodes()) {
-                    if (node.isTerminal()) {
-                        final PToken tk = node.toToken();
-                        if (tk.type == TokenCode.eIdent) {
-                            checkDefined(name, tk.text, checked);
-                        }
-                    }
+        __usedProductions.add(name);
+        if (!__productionByName.containsKey(name)) {
+            if (!name.startsWith("_") && !name.equals("EOF")) {
+                lerror("%s: production '%s' references undefined '%s'",
+                        parent.getLineLocation(), parent.getName(), name);
+            }
+        } else {
+            final Production prod = __productionByName.get(name);
+            for (Alternate alt : prod.getAlternates()) {
+                for (Node anode : alt.getNodes()) {
+                    anode.flatten().stream()
+                            .filter(tk -> tk.type == TokenCode.eIdent)
+                            .forEach(tk -> {
+                                checkDefined(prod, tk.text);
+                            });
                 }
             }
         }
-         */
+        return this;
+    }
+
+    private Analyze checkNotUsed() {
+        __productionByName.keySet().stream().filter(k -> !__usedProductions.contains(k)).forEach(k -> {
+            warn("%s: '%s' production is not used", __productionByName.get(k).getLineLocation(), k);
+        });
         return this;
     }
 
     private void redefinedError(Production here) {
         final Production previous = __productionByName.get(here.getName());
         lerror("%s: redefines '%s': previously defined (%s)",
-                here.getLocation(), here.getName(), previous.getLocation());
+                here.getLineLocation(), here.getName(), previous.getLineLocation());
     }
 
     private void lerror(String format, Object... args) {
@@ -117,4 +131,5 @@ public class Analyze {
     private final Map<String, Production> __productionByName = new HashMap<>();
     private int __errorCnt = 0;
     private Production __firstProduction = null;
+    private Set<String> __usedProductions = new HashSet<>();
 }

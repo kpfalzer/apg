@@ -32,11 +32,12 @@ import apg.ast.NonTerminalNode;
 import apg.ast.PTokenConsumer;
 import apg.ast.PTokens;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static apg.parser.Util.invalidToken;
-import static gblibx.Util.invariant;
 import static gblibx.Util.toSet;
 import static java.util.Objects.isNull;
 
@@ -142,51 +143,9 @@ public class Expression extends TokenConsumer {
         return getNode();
     }
 
-    public static class RewriteNode extends  NonTerminalNode {
-        public NonTerminalNode add(Node... nodes) {
-            return super.add(nodes);
-        }
-    }
-
-    private Node rewrite() {
-        RewriteNode rwn = new RewriteNode();
-        LinkedList<Node> curr = super.getNode().toNonTerminalNode().getNodes();
-        while (! curr.isEmpty()) {
-            Node top = curr.peek();
-            if (top.isTerminal()) {
-                if (top.toToken().type == TokenCode.eOr) {
-                   ;//todo
-                } else {
-                    rwn.add(curr.pop());
-                }
-            } else {
-                ;//todo
-            }
-        }
-        return getNode();
-    }
-
     protected PTokenConsumer addNode(Node... nodes) {
         super.addNode(nodes);
         return this;
-    }
-
-    protected PTokenConsumer NOTUSEDaddNode(Node... nodes) {
-        if ((1 == nodes.length) && (nodes[0] instanceof XNode.AltNode)) {
-            //push existing to front of lhs
-            LinkedList<Node> lhs = nodes[0].toNonTerminalNode().getNodes().getFirst().toNonTerminalNode().getNodes();
-            LinkedList<Node> infront = super.getNode().toNonTerminalNode().getNodes();
-            while (!infront.isEmpty())
-                lhs.offerFirst(infront.removeLast());
-        }
-        super.addNode(nodes);
-        return this;
-    }
-
-    private void NOTUSEDaddAlt(Node rhs) {
-        invariant(super.getNode().isNonTerminal());
-        final Expression.XNode lhs = new XNode(super.getNode().toNonTerminalNode().getNodes());
-        super.replace(new XNode.AltNode(lhs, rhs));
     }
 
     public static class Parenthesized extends NonTerminalNode {

@@ -1,10 +1,11 @@
 //Syntax of apg file (which specifies BNF-like).
+//(Non-)terminal names which being with underscore (_) (or EOF) are assumed builtin and should NOT be defined.
 
 apg_file: item* EOF ;
 
 item: nonterminal ;
 
-nonterminal: IDENT ':' expression* ';' ;
+nonterminal: _IDENT ':' expression* ';' ;
 
 /* Refresh remove left recursion:
  *
@@ -26,11 +27,11 @@ rep: '?' | '*' | '+' ;
 
 pred: ('&' | '!') '(' expression ')' ;
 
-primary: IDENT
+primary: _IDENT
 | terminal
 ;
 
-terminal: QUOTED | range | EOF ;
+terminal: QUOTED | _range | EOF ;
 
 QUOTED: '\'' [^\']* '\'' ;
 

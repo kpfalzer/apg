@@ -30,6 +30,7 @@ package apg.ast;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static java.util.Objects.isNull;
@@ -64,6 +65,13 @@ public class NonTerminalNode implements Node {
         return getNodes().stream()
                 .map(n -> n.toString())
                 .collect(Collectors.joining(" "));
+    }
+
+    @Override
+    public List<PToken> flatten() {
+        List<PToken> toks = new LinkedList<>();
+        getNodes().stream().map(node -> node.flatten()).forEach(f -> toks.addAll(f));
+        return toks;
     }
 
     public LinkedList<Node> getNodes() {

@@ -27,8 +27,9 @@
 
 package apg.ast;
 
+import java.util.List;
+
 import static gblibx.Util.downcast;
-import static gblibx.Util.invariant;
 
 public interface Node {
     public boolean isTerminal();
@@ -48,4 +49,10 @@ public interface Node {
     default public NonTerminalNode toNonTerminalNode() {
         return downcast(this);
     }
+
+    /**
+     * Flatten node to its tokens.
+     * @return list of tokens.
+     */
+    public List<PToken> flatten();
 }

@@ -27,7 +27,10 @@
 
 package apg.ast;
 
+import java.util.List;
+
 import static gblibx.Util.invariant;
+import static gblibx.Util.toList;
 import static java.util.Objects.isNull;
 
 public abstract class TerminalNode implements Node {
@@ -40,6 +43,11 @@ public abstract class TerminalNode implements Node {
     }
 
     public abstract PToken getToken();
+
+    @Override
+    public List<PToken> flatten() {
+        return toList(getToken());
+    }
 
     public String toString() {
         return getToken().toString();

@@ -29,10 +29,12 @@ package apg.parser;
 
 import apg.ast.Node;
 import apg.ast.NonTerminalNode;
+import apg.ast.PToken;
 import apg.ast.PTokens;
 
 import java.util.Collections;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -100,6 +102,14 @@ public class Range extends TokenConsumer {
             return String.format("[%c%s]",
                     not,
                     tmp.stream().map(n -> n.toString()).collect(Collectors.joining()));
+        }
+
+        @Override
+        /**
+         * Skip over the entirety of a range.
+         */
+        public List<PToken> flatten() {
+            return Collections.emptyList();
         }
     }
 

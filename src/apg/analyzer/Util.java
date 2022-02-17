@@ -44,4 +44,8 @@ public class Util {
     public static void error(String format, Object... args) {
         error(false, format, args);
     }
+
+    public static void warn(String format, Object... args) {
+        System.out.printf("Warn: %s\n", String.format(format,args));
+    }
 }

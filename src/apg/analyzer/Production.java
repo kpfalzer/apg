@@ -37,6 +37,7 @@ import java.util.List;
 
 import static gblibx.Util.downcast;
 import static gblibx.Util.invariant;
+import static gblibx.Util.isNonNull;
 import static java.util.Objects.isNull;
 
 public class Production {
@@ -87,8 +88,13 @@ public class Production {
         return __name.loc.toString();
     }
 
+    public String getLineLocation() {
+        String loc = getLocation();
+        return loc.substring(0, loc.lastIndexOf(':'));
+    }
+
     public Alternates getAlternates() {
-        return __alternates;
+        return isNonNull(__alternates) ? __alternates : Alternates.EMPTY;
     }
 
     private PToken __name;

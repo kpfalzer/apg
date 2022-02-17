@@ -30,4 +30,5 @@ package apg.analyzer;
 import java.util.LinkedList;
 
 public class Alternates extends LinkedList<Alternate> {
+    public static final Alternates EMPTY = new Alternates();
 }
