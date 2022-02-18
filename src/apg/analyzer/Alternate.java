@@ -34,4 +34,14 @@ public class Alternate extends NonTerminalNode {
     public Alternate(Node node) {
         super(node);
     }
+
+    public void setLeftRecursive() {
+        __isLeftRecursive = true;
+    }
+
+    public boolean isLeftRecursive() {
+        return __isLeftRecursive;
+    }
+
+    private boolean __isLeftRecursive = false;
 }

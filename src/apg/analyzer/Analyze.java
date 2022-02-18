@@ -34,6 +34,7 @@ import gblibx.Util;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -128,7 +129,11 @@ public class Analyze {
     }
 
     private final Node __ast;
-    private final Map<String, Production> __productionByName = new HashMap<>();
+    /**
+     * Production by name.
+     * We use LinkedHashSet for key iterate order as defined.
+     */
+    private final Map<String, Production> __productionByName = new LinkedHashMap<>();
     private int __errorCnt = 0;
     private Production __firstProduction = null;
     private Set<String> __usedProductions = new HashSet<>();

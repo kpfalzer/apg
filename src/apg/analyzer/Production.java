@@ -38,6 +38,7 @@ import java.util.List;
 import static gblibx.Util.downcast;
 import static gblibx.Util.invariant;
 import static gblibx.Util.isNonNull;
+import static gblibx.Util.toList;
 import static java.util.Objects.isNull;
 
 public class Production {
@@ -52,11 +53,17 @@ public class Production {
         invariant(!nodes.isEmpty() && (2 >= nodes.size()));
         __name = nodes.get(0).toToken();
         createAlternates();
+        findLeftRecursive();
     }
 
     private void createAlternates() {
-        if (2 > __node.getNodes().size()) return;
-        addNode(__node.getNodes().get(1));
+        final int n = __node.getNodes().size();
+        invariant(0 < n);
+        if (1 == n) {
+            addAlternate(__node.getNodes().get(0));
+        } else if (1 < n) {
+            addNode(__node.getNodes().get(1));
+        }
     }
 
     private void addNode(Node root) {
@@ -70,6 +77,15 @@ public class Production {
                 addNode(alt.getFirst());
             } else {
                 addAlternate(root);
+            }
+        }
+    }
+
+    private void findLeftRecursive() {
+        for (Alternate alt: getAlternates()) {
+            List<PToken> toks = alt.flatten();
+            if (!toks.isEmpty() && toks.get(0).text.equals(this.getName())) {
+                alt.setLeftRecursive();
             }
         }
     }
@@ -98,6 +114,12 @@ public class Production {
     }
 
     private PToken __name;
+    /**
+     * Raw parsed node.
+     */
     private final NonTerminal.XNode __node;
+    /**
+     * Initialized by createAlternates().
+     */
     private Alternates __alternates = null;
 }

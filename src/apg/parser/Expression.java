@@ -29,15 +29,18 @@ package apg.parser;
 
 import apg.ast.Node;
 import apg.ast.NonTerminalNode;
+import apg.ast.PToken;
 import apg.ast.PTokenConsumer;
 import apg.ast.PTokens;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import static apg.parser.Util.invalidToken;
+import static gblibx.Util.invariant;
 import static gblibx.Util.toSet;
 import static java.util.Objects.isNull;
 
@@ -151,6 +154,15 @@ public class Expression extends TokenConsumer {
     public static class Parenthesized extends NonTerminalNode {
         private Parenthesized(Token lparen, Node expr, Token rparen) {
             super.add(lparen, expr, rparen);
+        }
+
+        @Override
+        /**
+         * Flatten to tokens: but skip the parens '(' ')'
+         */
+        public List<PToken> flatten() {
+            invariant(3 == getNodes().size());
+            return getNodes().get(1).flatten();
         }
     }
 
