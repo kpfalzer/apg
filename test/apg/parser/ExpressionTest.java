@@ -42,6 +42,7 @@ public class ExpressionTest {
     public void parse() {
         if (true) {
             final String[] T1 = new String[]{
+                    "(a|b)|c",
                     "a b c d| e f g",
                     "expression '|' expression\n" +
                             "| expression rep? expression?\n" +

@@ -31,6 +31,7 @@ import apg.ast.Node;
 import apg.ast.PToken;
 import apg.parser.Expression;
 import apg.parser.NonTerminal;
+import apg.parser.TokenCode;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -64,28 +65,40 @@ public class Production {
         } else if (1 < n) {
             addNode(__node.getNodes().get(1));
         }
+        invariant(! __alternates.isEmpty());
     }
 
     private void addNode(Node root) {
-        if (root instanceof Expression.XNode.AltNode) {
-            final Expression.XNode.AltNode alt = downcast(root);
+        if (root instanceof Expression.Alternate) {
+            final Expression.Alternate alt = downcast(root);
             addAlternate(alt.getLhs());
             addNode(alt.getRhs());
         } else if (root instanceof Expression.XNode) {
             LinkedList<Node> alt = root.toNonTerminalNode().getNodes();
-            if ((1 == alt.size()) && (alt.getFirst() instanceof Expression.XNode.AltNode)) {
+            if ((1 == alt.size()) && (alt.getFirst() instanceof Expression.Alternate)) {
                 addNode(alt.getFirst());
             } else {
                 addAlternate(root);
             }
+        } else {
+            invariant(false);
         }
     }
 
     private void findLeftRecursive() {
         for (Alternate alt: getAlternates()) {
             List<PToken> toks = alt.flatten();
-            if (!toks.isEmpty() && toks.get(0).text.equals(this.getName())) {
-                alt.setLeftRecursive();
+            /**
+             * todo: need to check for
+             * + predicate ident
+             * + zero-repeat ident
+             */
+            if (!toks.isEmpty()) {
+                if (toks.get(0).type == TokenCode.eIdent && toks.get(0).text.equals(this.getName())) {
+                    alt.setLeftRecursive();
+                } else {
+                    LinkedList<Node> nodes = Expression.Tree.flatten(alt);
+                }
             }
         }
     }

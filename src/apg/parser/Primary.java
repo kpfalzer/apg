@@ -63,7 +63,7 @@ public class Primary extends TokenConsumer {
         return getNode();
     }
 
-    public static class XNode extends NonTerminalNode {
+    public static class XNode extends NonTerminalNode implements Expression.Tree.XNode{
     }
 
     public static Set<TokenCode> getFirstSet() {
