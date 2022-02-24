@@ -35,13 +35,26 @@ public class Alternate extends NonTerminalNode {
         super(node);
     }
 
-    public void setLeftRecursive() {
-        __isLeftRecursive = true;
+    @Override
+    public boolean detectDLR(String productionName) {
+        return super.detectDLR(productionName);
     }
 
-    public boolean isLeftRecursive() {
-        return __isLeftRecursive;
+    public Alternate setDLR(boolean value) {
+        __isDLR = value;
+        return this;
     }
 
-    private boolean __isLeftRecursive = false;
+    public Alternate setDLR() {
+        return setDLR(true);
+    }
+
+    public boolean isDLR() {
+        return __isDLR;
+    }
+
+    /**
+     * (Simple) direct left recursion.
+     */
+    private boolean __isDLR = false;
 }

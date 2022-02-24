@@ -51,4 +51,14 @@ public class Token extends PToken<TokenCode> {
     public String toString() {
         return identIsEOF() ? "<EOF>" : text;
     }
+
+    @Override
+    public boolean detectDLR(String productionName) {
+        return (isIdent() && text.equals(productionName));
+    }
+
+    @Override
+    public String getFirstNonTerminalName() {
+        return isIdent()?text:null;
+    }
 }

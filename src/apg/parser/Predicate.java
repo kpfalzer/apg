@@ -68,6 +68,19 @@ public class Predicate extends TokenConsumer {
         public String toString() {
             return String.format("%s(%s)", getNodes().getFirst().toString(), getNodes().getLast().toString());
         }
+
+        public boolean detectDLR(String productionName) {
+            boolean dlr = getNodes().getLast().detectDLR(productionName);
+            if (dlr) {
+                throw new Node.InvalidDLR();
+            }
+            return false;
+        }
+
+        @Override
+        public String getFirstNonTerminalName() {
+            return getNodes().getLast().getFirstNonTerminalName();
+        }
     }
 
     public static Set<TokenCode> getFirstSet() {

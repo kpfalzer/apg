@@ -111,6 +111,16 @@ public class Range extends TokenConsumer {
         public List<PToken> flatten() {
             return Collections.emptyList();
         }
+
+        @Override
+        public boolean detectDLR(String productionName) {
+            return false;
+        }
+
+        @Override
+        public String getFirstNonTerminalName() {
+            return null;
+        }
     }
 
     public static Set<TokenCode> getFirstSet() {

@@ -31,7 +31,6 @@ import apg.ast.Node;
 import apg.ast.PToken;
 import apg.parser.Expression;
 import apg.parser.NonTerminal;
-import apg.parser.TokenCode;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -39,7 +38,6 @@ import java.util.List;
 import static gblibx.Util.downcast;
 import static gblibx.Util.invariant;
 import static gblibx.Util.isNonNull;
-import static gblibx.Util.toList;
 import static java.util.Objects.isNull;
 
 public class Production {
@@ -54,7 +52,6 @@ public class Production {
         invariant(!nodes.isEmpty() && (2 >= nodes.size()));
         __name = nodes.get(0).toToken();
         createAlternates();
-        findLeftRecursive();
     }
 
     private void createAlternates() {
@@ -82,24 +79,6 @@ public class Production {
             }
         } else {
             invariant(false);
-        }
-    }
-
-    private void findLeftRecursive() {
-        for (Alternate alt: getAlternates()) {
-            List<PToken> toks = alt.flatten();
-            /**
-             * todo: need to check for
-             * + predicate ident
-             * + zero-repeat ident
-             */
-            if (!toks.isEmpty()) {
-                if (toks.get(0).type == TokenCode.eIdent && toks.get(0).text.equals(this.getName())) {
-                    alt.setLeftRecursive();
-                } else {
-                    LinkedList<Node> nodes = Expression.Tree.flatten(alt);
-                }
-            }
         }
     }
 

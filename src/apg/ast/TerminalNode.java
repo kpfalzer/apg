@@ -27,6 +27,8 @@
 
 package apg.ast;
 
+import apg.parser.TokenCode;
+
 import java.util.List;
 
 import static gblibx.Util.invariant;
@@ -51,6 +53,18 @@ public abstract class TerminalNode implements Node {
 
     public String toString() {
         return getToken().toString();
+    }
+
+    @Override
+    public boolean detectDLR(String productionName) {
+        final PToken tok = getToken();
+        return (TokenCode.eIdent == tok.type && tok.text.equals(productionName));
+    }
+
+    @Override
+    public String getFirstNonTerminalName() {
+        final PToken tok = getToken();
+        return (TokenCode.eIdent == tok.type)? tok.text:null;
     }
 
     /**

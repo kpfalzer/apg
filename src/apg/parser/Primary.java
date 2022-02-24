@@ -64,6 +64,15 @@ public class Primary extends TokenConsumer {
     }
 
     public static class XNode extends NonTerminalNode implements Expression.Tree.XNode{
+        @Override
+        public boolean detectDLR(String productionName) {
+            return getNodes().peek().detectDLR(productionName);
+        }
+
+        @Override
+        public String getFirstNonTerminalName() {
+            return getNodes().peek().getFirstNonTerminalName();
+        }
     }
 
     public static Set<TokenCode> getFirstSet() {

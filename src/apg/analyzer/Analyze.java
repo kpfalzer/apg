@@ -32,14 +32,17 @@ import apg.ast.NonTerminalNode;
 import apg.parser.TokenCode;
 import gblibx.Util;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static apg.analyzer.Util.error;
+import static apg.analyzer.Util.info;
 import static apg.analyzer.Util.warn;
+import static gblibx.Util.toList;
 import static java.util.Objects.isNull;
 
 public class Analyze {
@@ -69,6 +72,8 @@ public class Analyze {
                     }
                 });
         checkDefined()
+                .checkSimpleLeftRecursive()
+                .checkIndirectLeftRecursive() //NOTE: always after simple check!
                 .checkNotUsed();
         if (0 < __errorCnt) {
             error(true, "%d error(s) precludes further processing", __errorCnt);
@@ -108,6 +113,57 @@ public class Analyze {
             }
         }
         return this;
+    }
+
+    /**
+     * Check alternates if simple left-recursive: i.e,, a -> a ... (and nothing more complex).
+     * @return this object.
+     */
+    private Analyze checkSimpleLeftRecursive() {
+        __productionByName.values().stream().forEach(prod ->{
+            final String name = prod.getName();
+            for (Alternate alt : prod.getAlternates()) {
+                try {
+                    if (alt.setDLR(alt.detectDLR(name)).isDLR()) {
+                        info("%s: detected simple direct left recursion on '%s'", alt.flatten().get(0).loc.toString(), name);
+                    };
+                } catch (Node.InvalidDLR ex) {
+                    lerror("%s: complex direct left recursion on '%s' detected",
+                            prod.getLineLocation(), name);
+                }
+            }
+        });
+        return this;
+    }
+
+    private Analyze checkIndirectLeftRecursive() {
+        __productionByName.values().stream().forEach(prod ->{
+            checkIndirectLeftRecursive(new LinkedList<>(), prod.getName());
+        });
+        return this;
+    }
+
+    private void checkIndirectLeftRecursive(LinkedList<String> xpath, String name) {
+        LinkedList<String> path = toList(xpath);
+        if (__productionByName.containsKey(name)) {
+            path.add(name);
+            Production prod = __productionByName.get(name);
+            for (Alternate alt : prod.getAlternates()) {
+                if (alt.isDLR()) continue;
+                String first = alt.getFirstNonTerminalName();
+                //skip direct left recursion
+                if (isNull(first) || (1 == path.size() && path.get(0).equals(first))) continue;
+                if (1 < path.size() && path.get(0).equals(first)) {
+                    //ILR detected
+                    String spath = String.format("%s -> %s",
+                            path.stream().collect(Collectors.joining(" -> ")),
+                            first);
+                    lerror("Indirect left recursion detected: %s", spath);
+                } else {
+                    checkIndirectLeftRecursive(path, first);
+                }
+            }
+        }
     }
 
     private Analyze checkNotUsed() {

@@ -55,4 +55,24 @@ public interface Node {
      * @return list of tokens.
      */
     public List<PToken> flatten();
+
+    /**
+     * Check for direct left recursion in this node.
+     * @param productionName detect this production name.
+     * @return true if direct left recursion detected for productionName.
+     */
+    public boolean detectDLR(String productionName);
+
+    /**
+     * To check for indirect left recursion for this node, return
+     * the first nonterminal name found.
+     * @return first nonterminal name or null (if first is not nonterminal).
+     */
+    public String getFirstNonTerminalName();
+
+    /**
+     * In cases of DLR detected in Predicate or Repeat
+     */
+    public static class InvalidDLR extends RuntimeException {
+    }
 }

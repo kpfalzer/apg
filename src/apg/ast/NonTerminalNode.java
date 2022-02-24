@@ -27,6 +27,8 @@
 
 package apg.ast;
 
+import apg.parser.Expression;
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -72,6 +74,18 @@ public class NonTerminalNode implements Node {
         List<PToken> toks = new LinkedList<>();
         getNodes().stream().map(node -> node.flatten()).forEach(f -> toks.addAll(f));
         return toks;
+    }
+
+    @Override
+    public boolean detectDLR(String productionName) {
+        List<Node> nodes = Expression.Tree.flatten(this);
+        return (nodes.isEmpty()) ? false : nodes.get(0).detectDLR(productionName);
+    }
+
+    @Override
+    public String getFirstNonTerminalName() {
+        List<Node> nodes = Expression.Tree.flatten(this);
+        return (nodes.isEmpty()) ? null : nodes.get(0).getFirstNonTerminalName();
     }
 
     public LinkedList<Node> getNodes() {

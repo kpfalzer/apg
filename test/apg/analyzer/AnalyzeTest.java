@@ -31,6 +31,7 @@ import apg.ast.Node;
 import apg.parser.ApgFile;
 import apg.parser.Lexer;
 import apg.parser.Tokens;
+import gblibx.CharBuffer;
 import gblibx.FileCharBuffer;
 import org.junit.Test;
 
@@ -40,17 +41,32 @@ public class AnalyzeTest {
 
     @Test
     public void analyze() {
-        Tokens tokens = null;
-        try {
-            tokens = new Lexer(new FileCharBuffer(
-                    "grammar.txt"
-                    //"sv2012.peg"
-            )).tokenize();
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (true) {
+            Tokens tokens = null;
+            try {
+                tokens = new Lexer(new FileCharBuffer(
+                        "grammar.txt"
+                        //"sv2012.peg"
+                )).tokenize();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            Node ast = ApgFile.parse(tokens);
+            Analyze anz = Analyze.analyze(ast);
+            boolean debug = true;
         }
-        Node ast = ApgFile.parse(tokens);
-        Analyze anz = Analyze.analyze(ast);
-        boolean debug = true;
+        if (true) {
+            final String S1 = "bad_dlr : &(bad_dlr) _x1 _x2;\n"
+                    + "bad2: bad2+ _dog;\n"
+                    + "bad3: ((_x bad3)? bad2) _x3;\n"
+                    + "ilr1: p1 _a _b;\n"
+                    + "p1: p2;\n"
+                    + "p2: ilr1 _c;\n"
+                    ;
+            Tokens tokens = new Lexer(new CharBuffer(S1)).tokenize();
+            Node ast = ApgFile.parse(tokens);
+            Analyze anz = Analyze.analyze(ast);
+        }
+
     }
 }

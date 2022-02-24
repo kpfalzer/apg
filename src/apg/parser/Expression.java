@@ -32,8 +32,6 @@ import apg.ast.NonTerminalNode;
 import apg.ast.PToken;
 import apg.ast.PTokenConsumer;
 import apg.ast.PTokens;
-import apg.ast.TerminalNode;
-import sun.reflect.generics.tree.Tree;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -43,6 +41,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static apg.parser.Util.invalidToken;
+import static gblibx.Util.expectNever;
 import static gblibx.Util.invariant;
 import static gblibx.Util.toList;
 import static gblibx.Util.toSet;
@@ -207,11 +206,35 @@ public class Expression extends TokenConsumer {
             invariant(3 == getNodes().size());
             return getNodes().get(1).flatten();
         }
+
+        @Override
+        public boolean detectDLR(String productionName) {
+            return getNodes().get(1).detectDLR(productionName);
+        }
+
+        @Override
+        public String getFirstNonTerminalName() {
+            return getNodes().get(1).getFirstNonTerminalName();
+        }
     }
 
     public static class Repeated extends NonTerminalNode implements Expression.Tree.XNode {
         private Repeated(Node e, Node op) {
             super.add(Expression.Tree.create(e), op);
+        }
+
+        @Override
+        public boolean detectDLR(String productionName) {
+            boolean dlr = getNodes().getFirst().detectDLR(productionName);
+            if (dlr) {
+                throw new Node.InvalidDLR();
+            }
+            return false;
+        }
+
+        @Override
+        public String getFirstNonTerminalName() {
+            return getNodes().getFirst().getFirstNonTerminalName();
         }
     }
 
@@ -235,6 +258,16 @@ public class Expression extends TokenConsumer {
     public static class Predicated extends NonTerminalNode implements Expression.Tree.XNode {
         private Predicated(Node pred, Node expr) {
             super.add(pred, expr);
+        }
+
+        @Override
+        public boolean detectDLR(String productionName) {
+            return getNodes().getFirst().detectDLR(productionName);
+        }
+
+        @Override
+        public String getFirstNonTerminalName() {
+            return getNodes().getFirst().getFirstNonTerminalName();
         }
     }
 
@@ -287,6 +320,12 @@ public class Expression extends TokenConsumer {
 
         public Node getRhs() {
             return getNodes().getLast();
+        }
+
+        @Override
+        public boolean detectDLR(String productionName) {
+            expectNever();
+            return false;
         }
     }
 }

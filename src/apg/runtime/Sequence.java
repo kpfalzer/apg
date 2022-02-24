@@ -2,7 +2,7 @@
  *
  *  * The MIT License
  *  *
- *  * Copyright 2021 kpfalzer.
+ *  * Copyright 2022 kpfalzer.
  *  *
  *  * Permission is hereby granted, free of charge, to any person obtaining a copy
  *  * of this software and associated documentation files (the "Software"), to deal
@@ -25,31 +25,28 @@
  *
  */
 
-package apg.analyzer;
+package apg.runtime;
 
-public class Util {
-    public static void error(boolean exit, String msg) {
-        System.err.printf("Error: %s\n", msg);
-        if (exit) System.exit(1);
+public class Sequence implements Acceptor {
+    public Sequence(Acceptor... items) {
+        __acceptors = items;
     }
 
-    public static void error(String msg) {
-        error(false, msg);
+    @Override
+    public boolean accept(State state) {
+        final State.Snapshot snap = state.save();
+        boolean match = true;
+        for (Acceptor acc : __acceptors) {
+            if (! acc.accept(state)) {
+                match = false;
+                break;
+            }
+        }
+        if (! match) {
+            state.restore(snap);
+        }
+        return match;
     }
 
-    public static void error(boolean exit, String format, Object... args) {
-        error(exit, String.format(format, args));
-    }
-
-    public static void error(String format, Object... args) {
-        error(false, format, args);
-    }
-
-    public static void warn(String format, Object... args) {
-        System.out.printf("Warn: %s\n", String.format(format,args));
-    }
-
-    public static void info(String format, Object... args) {
-        System.out.printf("Info: %s\n", String.format(format,args));
-    }
+    private final Acceptor[] __acceptors;
 }

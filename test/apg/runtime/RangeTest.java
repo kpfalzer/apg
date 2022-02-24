@@ -2,7 +2,7 @@
  *
  *  * The MIT License
  *  *
- *  * Copyright 2021 kpfalzer.
+ *  * Copyright 2022 kpfalzer.
  *  *
  *  * Permission is hereby granted, free of charge, to any person obtaining a copy
  *  * of this software and associated documentation files (the "Software"), to deal
@@ -25,31 +25,32 @@
  *
  */
 
-package apg.analyzer;
+package apg.runtime;
 
-public class Util {
-    public static void error(boolean exit, String msg) {
-        System.err.printf("Error: %s\n", msg);
-        if (exit) System.exit(1);
-    }
+import gblibx.CharBuffer;
+import junit.framework.TestCase;
 
-    public static void error(String msg) {
-        error(false, msg);
-    }
+public class RangeTest extends TestCase {
+    private static final Range R1 = new Range("a-zA-Z");
+    private static final Repeated SPACING = new Repeated(new Range(" - \t-\t"), Repeated.ERep.eOneOrMore);
+    private static final Repeated R2 = new Repeated(R1, Repeated.ERep.eOneOrMore);
 
-    public static void error(boolean exit, String format, Object... args) {
-        error(exit, String.format(format, args));
-    }
-
-    public static void error(String format, Object... args) {
-        error(false, format, args);
-    }
-
-    public static void warn(String format, Object... args) {
-        System.out.printf("Warn: %s\n", String.format(format,args));
-    }
-
-    public static void info(String format, Object... args) {
-        System.out.printf("Info: %s\n", String.format(format,args));
+    public void testAccept() {
+        {
+            final CharBuffer b1 = new CharBuffer("d");
+            final State s1 = new State(b1);
+            boolean match = R1.accept(s1);
+            assertTrue(match);
+        }
+        {
+            final CharBuffer b1 = new CharBuffer("foobar \tdog");
+            final State s1 = new State(b1);
+            boolean match = R2.accept(s1);
+            assertTrue(match);
+            match = SPACING.accept(s1);
+            assertTrue(match);
+            match = R2.accept(s1);
+            assertTrue(match);
+        }
     }
 }
